@@ -1,2 +1,4 @@
 design/*
 excludes.txt
+*.png
+*.ico
