@@ -1,40 +1,46 @@
 /////////////// snake game ///////////////
 
-// constants //
 
-// width & height of game screen
-const WIDTH = 640;
-const HEIGHT = 360;
 
-// background color of game screen
-const BG_COLOR = '#1099bb';
-
-// rows and columns of game grid
-const GRID_ROWS = 11; // y
-const GRID_COLUMNS = 11; // x
-
-// center of game grid; ceil used to yield integral value
-const GRID_CENTER = [Math.ceil(GRID_COLUMNS / 2), Math.ceil(GRID_ROWS / 2)]
+///// types /////
 
 /*
 * possible tile states
-* grid should start with an apple in the center, a 
+* grid should start with an apple in the center, all other tiles empty
 */
 const TILE_EMPTY = Symbol.for("empty");
 const TILE_APPLE = Symbol.for("apple");
 const TILE_SNAKE = Symbol.for("snake");
 const TILE_BODY  = Symbol.for("body");
 
-const app = new PIXI.Application({ background: BG_COLOR, width: WIDTH, height: HEIGHT });
-document.body.appendChild(app.view);
 
-// Magically load the PNG asynchronously
-const snake_head_sprite = PIXI.Sprite.from('snake head.png');
-const snake_body_sprite = PIXI.Sprite.from('snake body.png');
+// background color of game screen
+// should get obscured by tiles
+const BG_COLOR = '#1099bb';
 
-const snake_head = new PIXI.Container();
+///// constants /////
 
-// mutable variables //
+// width & height of game screen
+const PIXEL_WIDTH = 400;
+const PIXEL_HEIGHT = 400;
+
+
+// rows and columns of game grid
+const GRID_ROWS = 9; // y
+const GRID_COLUMNS = 9; // x
+
+const UNIT_HEIGHT = Math.floor(PIXEL_HEIGHT / GRID_ROWS);
+const UNIT_WIDTH = Math.floor(PIXEL_WIDTH / GRID_COLUMNS);
+
+const HALF_UNIT_WIDTH = UNIT_WIDTH / 2;
+const HALF_UNIT_HEIGHT = UNIT_HEIGHT / 2;
+
+// center of game grid; ceil used to yield integral value
+const GRID_CENTER = [Math.ceil(GRID_COLUMNS / 2), Math.ceil(GRID_ROWS / 2)]
+
+
+
+/////// mutable variables ///////
 
 // should be updated to [x,y] when player hits direction key
 let direction = null;
@@ -42,24 +48,68 @@ let direction = null;
 // momentarily set to true when direction key is pressed down
 let changed_direction = false;
 
+
+
+/////// assets ///////
+
+/*
+ * reminder:
+ * "A sprite is basically a position at which to draw a texture.
+ * Just make separate sprites for each tile that share the same texture instance"
+ * from https://github.com/pixijs/pixijs/issues/5378#issuecomment-456147317
+ */
+
+
+// Magically load PNGs asynchronously
+const snake_head_texture = PIXI.Texture.from('snake head.png');
+const snake_body_texture = PIXI.Texture.from('snake body.png');
+const bg_tile_texture = PIXI.Texture.from('generic tile.png');
+const apple_texture = PIXI.Texture.from('apple.png');
+
+
+/////// logical objects ///////
+
+/**
+ * by logical objects, I mean data structures to be used by the snake game
+ * which may but don't necessarily directly represent on-screen objects.
+ */
+
+const app = new PIXI.Application({ background: BG_COLOR, width: PIXEL_WIDTH, height: PIXEL_HEIGHT });
+document.body.appendChild(app.view);
+
+const snake_head_sprite = PIXI.Sprite.from(snake_head_texture);
+const snake_head = new PIXI.Container();
+snake_head.addChild(snake_head_sprite);
+
+const apple_sprite = PIXI.Sprite.from(apple_texture);
+const apple = new PIXI.Container();
+apple.addChild(apple_sprite);
+
 // stores state of each grid (empty, apple, snake, body)
 let state_grid = Array.from(Array(GRID_ROWS), () => new Array(GRID_COLUMNS));
-state_grid.forEach((row) => row.fill(TILE_EMPTY));
 
-state_grid[GRID_CENTER[1]][GRID_CENTER[0]] = TILE_APPLE;
+/**
+ * array of background sprites for each game tile
+ */
+let sprite_grid = Array.from(Array(GRID_ROWS), () => Array.from({length: GRID_COLUMNS}, () => PIXI.Sprite.from(bg_tile_texture)));
 
-state_grid.forEach((row) => row.forEach((x) => console.log(Symbol.keyFor(x))));
 
-// y_grid stores the y value of the top-left corner of each tile
-let y_grid = Array.from(Array(GRID_ROWS), () => new Uint16Array(GRID_COLUMNS));
-y_grid;
 
-// x_grid stores the x value of the top-left corner of each tile
-let x_grid = Array.from(Array(GRID_ROWS), () => new Uint16Array(GRID_COLUMNS));
 
-// want to calculate position of each tile within the game screen
-{
+/////// game logic and graphics helper functions ///////
 
+/**
+ * as of writing 2/11/2024 far all sprites use the same pivot point, width, and height
+ * 
+ */
+function configure_sprite(sprite) {
+  
+  // set rotation pivots to center of sprite
+  sprite.anchor.set(0.5);
+
+  // scale sprites to one unit of the game grid
+  sprite.height = UNIT_HEIGHT;
+  sprite.width = UNIT_WIDTH;
 }
 
 // rotate snake head
@@ -67,41 +117,142 @@ function rotate_head() {
   // The Math.atan2() static method  returns the angle in the plane (in radians) between the positive x-axis
   // and the ray from (0, 0) to the point (x, y), for Math.atan2(y, x).
   let angle = Math.atan2(direction[1], direction[0]);
+
   snake_head_sprite.rotation = -angle + Math.PI / 2;
   changed_direction = false;
 }
 
 // move snake body
 // direction should be a (x,y) vector
-
-//going to start 
 function move_body (direction) {
 
 }
 
-// set rotation pivot to center of sprite
-snake_head_sprite.anchor.set(0.5);
-
-// set starting position of snake head
-snake_head.x = app.screen.width / 2;
-snake_head.y = app.screen.height / 2;
 
 
-// scene construction //
 
-app.stage.addChild(snake_head);
+/////// initialization ///////
 
-snake_head.addChild(snake_head_sprite);
+// create grid of empty tiles with apple in the middle, snake on a random tile
+{
+  state_grid.forEach((row) => row.fill(TILE_EMPTY));
 
-// game/animation logic //
+  /*
+   * GRID_CENTER[0]: x
+   * GRID_CENTER[1]: y
+   */
+  state_grid[GRID_CENTER[0]][GRID_CENTER[1]] = TILE_APPLE;
+
+  // choose a random, non-center starting point for the snake head
+ 
+  //! note, may wanna modify later to add a new state for the head of the snake!
+  let snake_start_x = 1;
+  let snake_start_y = 1;
+
+  /*
+   * On average, loops about 1/(GRID_COLUMNS*GRID_ROWS) times.
+   * so this will only loop if the snake head happens to land on the apple.
+   * formula makes sure that the snake head doesn't spawn on the edge of the grid.
+   */
+  do {
+
+    // remember that x is measured over columns, y over rows
+    snake_start_x = Math.floor(Math.random() * (GRID_COLUMNS - 1)) + 1;
+    snake_start_y = Math.floor(Math.random() * (GRID_ROWS - 1)) +  1;
+
+  } while(snake_start_x == GRID_CENTER[0] && snake_start_y == GRID_CENTER[1]);
+  
+  state_grid[snake_start_x][snake_start_y] = TILE_SNAKE;
+
+  // display snakehead starting coordinates
+  console.log("snake x: ", snake_start_x); console.log("snake y: ", snake_start_y);
+
+  // display grid center coordinates
+  console.log("center x: ", GRID_CENTER[0]); console.log("center y: ", GRID_CENTER[1]);
+}
+
+
+
+
+// configure evergreen sprites
+{
+  //these sprites get moved around, but are reused continuously
+  let sprites = [snake_head_sprite, apple_sprite];
+
+  for(let sprite of sprites) {
+    configure_sprite(sprite);
+  }
+
+  // set starting position of snake head
+  //! test position; to be removed later
+  snake_head.x = HALF_UNIT_WIDTH;
+  snake_head.y = HALF_UNIT_HEIGHT; 
+
+
+}
+
+
+
+/* 
+ * create game screen
+ *
+ */
+{
+  
+
+  //! fill the sprite grid with generic tiles; (might just do this at definition)
+  //sprite_grid.forEach((row) => row.fill(PIXI.Sprite.from(bg_tile_texture)));
+
+  //console.log(sprite_grid);
+  
+  //! using this to test tile identity and fix a bug in the rendering code; may want to remove later
+  let sprite_ids = new WeakMap; let idCount = 0;
+  function spriteId(obj) {
+    if(!sprite_ids.has(obj)) sprite_ids.set(obj, ++idCount);
+    return sprite_ids.get(obj);
+  }
+
+  // arrange the tiles onto the screen
+  sprite_grid.forEach((row, y) => row.forEach( (tile, x) => {
+
+    configure_sprite(tile);
+    tile.x = Math.floor(x * PIXEL_WIDTH / GRID_COLUMNS + HALF_UNIT_WIDTH);
+    tile.y = Math.floor(y * PIXEL_HEIGHT / GRID_ROWS + HALF_UNIT_HEIGHT);
+    app.stage.addChild(tile);
+    console.log(spriteId(tile));
+    console.log(`x: ${x}, ${tile.x}, y: ${y}, ${tile.y}`); 
+  }));
+
+
+
+  //! add apple and snake here
+  //app.stage.addChild(apple);
+  app.stage.addChild(snake_head); 
+
+}
+
+  //! testing another sprite
+  let asdf = PIXI.Sprite.from(bg_tile_texture);
+  configure_sprite(asdf);
+  asdf.x = Math.floor(2 * PIXEL_WIDTH / GRID_COLUMNS + HALF_UNIT_WIDTH);
+  asdf.y = Math.floor(6 * PIXEL_HEIGHT / GRID_ROWS + HALF_UNIT_HEIGHT);
+  app.stage.addChild(asdf);
+  console.log(`asdf x: ${2}, ${asdf.x}, asdf y: ${6}, ${asdf.y}`); 
+
+
+/////// main loop ///////
 
 // Tell our application's ticker to run a new callback every frame, passing
 // in the amount of time that has passed since the last tick
 app.ticker.add((delta) => {
+  
   if(changed_direction) rotate_head();
+
 });
 
-/////////////// listeners ///////////////
+
+
+/////// user input listeners ///////
 
 // map directional arrow keys to direction
 function map_arrow_press(press) {
