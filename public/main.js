@@ -130,7 +130,6 @@ function move_body (direction) {
 
 
 
-
 /////// initialization ///////
 
 // create grid of empty tiles with apple in the middle, snake on a random tile
@@ -145,7 +144,7 @@ function move_body (direction) {
 
   // choose a random, non-center starting point for the snake head
  
-  //! note, may wanna modify later to add a new state for the head of the snake!
+  // note, may wanna modify later to add a new state for the head of the snake!
   let snake_start_x = 1;
   let snake_start_y = 1;
 
@@ -163,6 +162,9 @@ function move_body (direction) {
   } while(snake_start_x == GRID_CENTER[0] && snake_start_y == GRID_CENTER[1]);
   
   state_grid[snake_start_x][snake_start_y] = TILE_SNAKE;
+  
+  snake_head.x = snake_start_x * UNIT_WIDTH + HALF_UNIT_WIDTH;
+  snake_head.y = snake_start_y * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
 
   // display snakehead starting coordinates
   console.log("snake x: ", snake_start_x); console.log("snake y: ", snake_start_y);
@@ -182,12 +184,6 @@ function move_body (direction) {
   for(let sprite of sprites) {
     configure_sprite(sprite);
   }
-
-  // set starting position of snake head
-  //! test position; to be removed later
-  snake_head.x = HALF_UNIT_WIDTH;
-  snake_head.y = HALF_UNIT_HEIGHT; 
-
 
 }
 
