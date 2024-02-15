@@ -165,12 +165,6 @@ function move_body (direction) {
   
   snake_head.x = snake_start_x * UNIT_WIDTH + HALF_UNIT_WIDTH;
   snake_head.y = snake_start_y * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
-
-  // display snakehead starting coordinates
-  console.log("snake x: ", snake_start_x); console.log("snake y: ", snake_start_y);
-
-  // display grid center coordinates
-  console.log("center x: ", GRID_CENTER[0]); console.log("center y: ", GRID_CENTER[1]);
 }
 
 
@@ -184,7 +178,6 @@ function move_body (direction) {
   for(let sprite of sprites) {
     configure_sprite(sprite);
   }
-
 }
 
 
@@ -198,8 +191,6 @@ function move_body (direction) {
 
   //! fill the sprite grid with generic tiles; (might just do this at definition)
   //sprite_grid.forEach((row) => row.fill(PIXI.Sprite.from(bg_tile_texture)));
-
-  //console.log(sprite_grid);
   
   //! using this to test tile identity and fix a bug in the rendering code; may want to remove later
   let sprite_ids = new WeakMap; let idCount = 0;
@@ -215,8 +206,6 @@ function move_body (direction) {
     tile.x = Math.floor(x * PIXEL_WIDTH / GRID_COLUMNS + HALF_UNIT_WIDTH);
     tile.y = Math.floor(y * PIXEL_HEIGHT / GRID_ROWS + HALF_UNIT_HEIGHT);
     app.stage.addChild(tile);
-    console.log(spriteId(tile));
-    console.log(`x: ${x}, ${tile.x}, y: ${y}, ${tile.y}`); 
   }));
 
 
@@ -226,15 +215,6 @@ function move_body (direction) {
   app.stage.addChild(snake_head); 
 
 }
-
-  //! testing another sprite
-  let asdf = PIXI.Sprite.from(bg_tile_texture);
-  configure_sprite(asdf);
-  asdf.x = Math.floor(2 * PIXEL_WIDTH / GRID_COLUMNS + HALF_UNIT_WIDTH);
-  asdf.y = Math.floor(6 * PIXEL_HEIGHT / GRID_ROWS + HALF_UNIT_HEIGHT);
-  app.stage.addChild(asdf);
-  console.log(`asdf x: ${2}, ${asdf.x}, asdf y: ${6}, ${asdf.y}`); 
-
 
 /////// main loop ///////
 
