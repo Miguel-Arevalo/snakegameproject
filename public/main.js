@@ -169,7 +169,6 @@ function move_body (direction) {
 
 
 
-
 // configure evergreen sprites
 {
   //these sprites get moved around, but are reused continuously
@@ -187,18 +186,6 @@ function move_body (direction) {
  *
  */
 {
-  
-
-  //! fill the sprite grid with generic tiles; (might just do this at definition)
-  //sprite_grid.forEach((row) => row.fill(PIXI.Sprite.from(bg_tile_texture)));
-  
-  //! using this to test tile identity and fix a bug in the rendering code; may want to remove later
-  let sprite_ids = new WeakMap; let idCount = 0;
-  function spriteId(obj) {
-    if(!sprite_ids.has(obj)) sprite_ids.set(obj, ++idCount);
-    return sprite_ids.get(obj);
-  }
-
   // arrange the tiles onto the screen
   sprite_grid.forEach((row, y) => row.forEach( (tile, x) => {
 
