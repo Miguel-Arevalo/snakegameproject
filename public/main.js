@@ -36,19 +36,27 @@ const HALF_UNIT_WIDTH = UNIT_WIDTH / 2;
 const HALF_UNIT_HEIGHT = UNIT_HEIGHT / 2;
 
 // center of game grid; ceil used to yield integral value
-const GRID_CENTER = [Math.ceil(GRID_COLUMNS / 2), Math.ceil(GRID_ROWS / 2)]
+const GRID_CENTER = [Math.ceil(GRID_COLUMNS / 2) - 1, Math.ceil(GRID_ROWS / 2) - 1]
 
 
 
 /////// mutable variables ///////
 
-// should be updated to [x,y] when player hits direction key
-let direction = null;
+/**
+ * should be updated to [x,y] when player hits direction key. 
+ * 
+ */
+let current_direction = [0,1];
 
-// momentarily set to true when direction key is pressed down
+/**
+ * momentarily set to true when direction key is pressed down.
+ * after the change in direction is made, it's reset to false;
+ */
 let changed_direction = false;
 
-
+/**
+ * 
+ */
 
 /////// assets ///////
 
@@ -113,7 +121,7 @@ function configure_sprite(sprite) {
 }
 
 // rotate snake head
-function rotate_head() {
+function rotate_head(direction) {
   // The Math.atan2() static method  returns the angle in the plane (in radians) between the positive x-axis
   // and the ray from (0, 0) to the point (x, y), for Math.atan2(y, x).
   let angle = Math.atan2(direction[1], direction[0]);
@@ -122,10 +130,10 @@ function rotate_head() {
   changed_direction = false;
 }
 
-// move snake body
-// direction should be a (x,y) vector
-function move_body (direction) {
-
+// direction should be an (x,y) array
+function move_grid_spite(sprite, direction) {
+  sprite.x = sprite.x + direction[0] * UNIT_WIDTH;
+  sprite.y = sprite.y + direction[1] * UNIT_HEIGHT;
 }
 
 
@@ -153,13 +161,17 @@ function move_body (direction) {
    * so this will only loop if the snake head happens to land on the apple.
    * formula makes sure that the snake head doesn't spawn on the edge of the grid.
    */
+  let center_start;
+  console.log(`center x: ${GRID_CENTER[0]} and center y: ${GRID_CENTER[1]}`);
   do {
 
     // remember that x is measured over columns, y over rows
-    snake_start_x = Math.floor(Math.random() * (GRID_COLUMNS - 1)) + 1;
-    snake_start_y = Math.floor(Math.random() * (GRID_ROWS - 1)) +  1;
+    snake_start_x = Math.floor(Math.random() * (GRID_COLUMNS - 3)) + 1;
+    snake_start_y = Math.floor(Math.random() * (GRID_ROWS - 3)) +  1;
+    console.log(`x: ${snake_start_x}, y: ${snake_start_y}`);
 
-  } while(snake_start_x == GRID_CENTER[0] && snake_start_y == GRID_CENTER[1]);
+    center_start = (snake_start_x == GRID_CENTER[0] && snake_start_y == GRID_CENTER[1]);
+  } while(center_start);
   
   state_grid[snake_start_x][snake_start_y] = TILE_SNAKE;
   
@@ -205,14 +217,20 @@ function move_body (direction) {
 
 /////// main loop ///////
 
+
+{
+  await new Promise(a => setTimeout(a, 200));
+  app.stop();
+
+}
+
 // Tell our application's ticker to run a new callback every frame, passing
 // in the amount of time that has passed since the last tick
 app.ticker.add((delta) => {
   
-  if(changed_direction) rotate_head();
+  if(changed_direction) rotate_head(current_direction);
 
 });
-
 
 
 /////// user input listeners ///////
@@ -225,16 +243,16 @@ function map_arrow_press(press) {
 
   switch (press.key) {
     case "ArrowDown":
-      direction = [0,-1]; //down
+      current_direction = [0,-1]; //down
       break;
     case "ArrowUp":
-      direction = [0,1];  //up
+      current_direction = [0,1];  //up
       break;
     case "ArrowLeft":
-      direction = [-1,0]; //left
+      current_direction = [-1,0]; //left
       break;
     case "ArrowRight":
-      direction = [1,0]; //right
+      current_direction = [1,0]; //right
       break;
     default:
       return;
@@ -242,6 +260,7 @@ function map_arrow_press(press) {
 
   changed_direction = true;
   press.preventDefault();
+  app.start();
 }
 
 window.addEventListener("keydown", map_arrow_press);
