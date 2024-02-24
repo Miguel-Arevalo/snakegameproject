@@ -148,11 +148,13 @@ function move_grid_spite(sprite, direction) {
 
 /**
  * moves the segment, and then updates the state grid
- * current: start coordinates on state grid
- * future: final coordinates on state grid
+ * current: start coordinates on state grid, [x,y]
+ * future: final coordinates on state grid, [x,y]
  */
 function move_snake_segment(current, future, segment) {
-
+  state_grid[current[0]][current[1]] = TILE_EMPTY;
+  state_grid[future[0]][future[1]] = TILE_SNAKE;
+  move_grid_spite(segment, [future[0] - current[0],future[1] - current[1]]);
 }
 
 /**
