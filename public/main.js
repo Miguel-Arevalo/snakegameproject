@@ -202,6 +202,10 @@ function move_snake(direction) {
 
   //! move the rest of the segments
 
+  for(let segment of snake.slice(1)) {
+    
+  }
+
   return true;
 }
 
