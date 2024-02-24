@@ -91,12 +91,14 @@ const apple = new PIXI.Container();
 apple.addChild(apple_sprite);
 
 // stores state of each grid (empty, apple, snake, body)
-let state_grid = Array.from(Array(GRID_ROWS), () => new Array(GRID_COLUMNS));
+let state_grid = Array.from(Array(GRID_ROWS),
+  () => new Array(GRID_COLUMNS));
 
 /**
  * array of background sprites for each game tile
  */
-let sprite_grid = Array.from(Array(GRID_ROWS), () => Array.from({length: GRID_COLUMNS}, () => PIXI.Sprite.from(bg_tile_texture)));
+let sprite_grid = Array.from(Array(GRID_ROWS),
+  () => Array.from({length: GRID_COLUMNS}, () => PIXI.Sprite.from(bg_tile_texture)));
 
 /**
  * list of snake segments
@@ -128,7 +130,7 @@ function configure_sprite(sprite) {
 
 // rotate snake head
 function rotate_head(direction) {
-  // The Math.atan2() static method  returns the angle in the plane (in radians) between the positive x-axis
+  // The Math.atan2() static method  returns the angle in the plane(in radians) between the positive x-axis
   // and the ray from (0, 0) to the point (x, y), for Math.atan2(y, x).
   let angle = Math.atan2(direction[1], direction[0]);
 
@@ -141,7 +143,7 @@ function move_grid_spite(sprite, direction) {
   //x gets larger as it goes right, smaller as it goes left
   sprite.x = sprite.x + direction[0] * UNIT_WIDTH;
 
-  //y gets smaller as it goes up, larger as it goes down
+  // y gets smaller as it goes up, larger as it goes down
   sprite.y = sprite.y - direction[1] * UNIT_HEIGHT;
 }
 
@@ -164,12 +166,12 @@ function move_snake_segment(current, future, segment) {
  * return: false = collision, true = evasion
  */
 function move_snake_head(direction) {
-  //the snakehead is the first element of the snake;
-  //retrieve the current location of the snake head
+  // the snakehead is the first element of the snake;
+  // retrieve the current location of the snake head
   let current = snake[0][1];
 
-  //compute the snakehead's future location
-  //future: [x,y]
+  // compute the snakehead's future location
+  // future: [x,y]
   let future = [current[0] + direction[0],current[1] + direction[1]];
 
 
@@ -182,19 +184,20 @@ function move_snake_head(direction) {
   let next_tile_state = state_grid[future[0]][future[1]];
   if(next_tile_state == TILE_SNAKE) return false;
 
-
-  //! move the snake head
   move_snake_segment(current, future, snake[0][0]);
   
   return true;
 }
 
+/**
+ * returns false if the snake collided; otherwise true
+ */
 function move_snake(direction) {
 
   //if evaded, then the snake did not crash this turn
   let evaded = move_snake_head(direction);
 
-  if (!evaded);
+  if (!evaded) return false;
 }
 
 /////// initialization \\\\\\\
@@ -272,7 +275,7 @@ function move_snake(direction) {
 
 
   //! add apple and snake here
-  //app.stage.addChild(apple);
+  // app.stage.addChild(apple);
   app.stage.addChild(snake_head); 
 
 }
