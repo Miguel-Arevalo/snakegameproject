@@ -1,8 +1,8 @@
-/////////////// snake game ///////////////
+/////////////// snake game \\\\\\\\\\\\\\\
 
 
 
-///// types /////
+/////// types \\\\\\\
 
 /*
 * possible tile states
@@ -18,7 +18,7 @@ const TILE_BODY  = Symbol.for("body");
 // should get obscured by tiles
 const BG_COLOR = '#1099bb';
 
-///// constants /////
+/////// constants \\\\\\\
 
 // width & height of game screen
 const PIXEL_WIDTH = 400;
@@ -40,7 +40,7 @@ const GRID_CENTER = [Math.ceil(GRID_COLUMNS / 2) - 1, Math.ceil(GRID_ROWS / 2) -
 
 
 
-/////// mutable variables ///////
+/////// global mutable variables \\\\\\\
 
 /**
  * should be updated to [x,y] when player hits direction key. 
@@ -55,10 +55,12 @@ let current_direction = [0,1];
 let changed_direction = false;
 
 /**
- * 
+ * Must be updated before gamestart.
+ * [x,y] location in tile grid
  */
+let head_location = [-100,-100];
 
-/////// assets ///////
+/////// assets \\\\\\\
 
 /*
  * reminder:
@@ -75,7 +77,7 @@ const bg_tile_texture = PIXI.Texture.from('generic tile.png');
 const apple_texture = PIXI.Texture.from('apple.png');
 
 
-/////// logical objects ///////
+/////// logical objects \\\\\\\
 
 /**
  * by logical objects, I mean data structures to be used by the snake game
@@ -104,7 +106,7 @@ let sprite_grid = Array.from(Array(GRID_ROWS), () => Array.from({length: GRID_CO
 
 
 
-/////// game logic and graphics helper functions ///////
+/////// game logic and graphics helper functions \\\\\\\
 
 /**
  * as of writing 2/11/2024 far all sprites use the same pivot point, width, and height
@@ -132,13 +134,31 @@ function rotate_head(direction) {
 
 // direction should be an (x,y) array
 function move_grid_spite(sprite, direction) {
+  //x gets larger as it goes right, smaller as it goes left
   sprite.x = sprite.x + direction[0] * UNIT_WIDTH;
-  sprite.y = sprite.y + direction[1] * UNIT_HEIGHT;
+
+  //y gets smaller as it goes up, larger as it goes down
+  sprite.y = sprite.y - direction[1] * UNIT_HEIGHT;
 }
 
 
+function move_snake_part(part, direction) {
 
-/////// initialization ///////
+}
+
+/**
+ * Checks whether the snake would eiher go out of bounds or crash into itself
+ * direction: (x,y) array
+ */
+function move_snake_head(sprite, direction) {
+
+}
+
+function move_snake() {
+
+}
+
+/////// initialization \\\\\\\
 
 // create grid of empty tiles with apple in the middle, snake on a random tile
 {
@@ -215,23 +235,52 @@ function move_grid_spite(sprite, direction) {
 
 }
 
-/////// main loop ///////
+/////// main loop \\\\\\\
+
 
 
 {
   await new Promise(a => setTimeout(a, 200));
   app.stop();
 
-}
-
-// Tell our application's ticker to run a new callback every frame, passing
-// in the amount of time that has passed since the last tick
-app.ticker.add((delta) => {
+  /**
+   * Speed in milliseconds at which the snake should move one tile.
+   */
+  const SNAKE_SPEED = 100;
   
-  if(changed_direction) rotate_head(current_direction);
+  /**
+   * Time elapsed since last updated.
+   */
+  let elapsed_time = 0;
+  // Tell our application's ticker to run a new callback every frame, passing
+  // in the amount of time that has passed since the last tick
+  app.ticker.add(() => {
 
-});
+    if(changed_direction) rotate_head(current_direction);
 
+    //! add movement behaviour here
+    console.log(app.ticker.deltaMS);
+
+    elapsed_time += app.ticker.deltaMS;
+
+    if(elapsed_time >= SNAKE_SPEED) {
+      elapsed_time = 0;
+
+      /*
+       * Only have to check if the head is moving off screen.
+       * The rest of the game's logic should implicitely prevent the snake body
+       * from moving off screen.
+       * 
+       * Here it makes more sense to use the abstract state_grid to check, rather than
+       * the state_grid.
+       */
+      if (true) {
+        move_grid_spite(snake_head, current_direction);
+      }
+    }
+
+  });
+}
 
 /////// user input listeners ///////
 
