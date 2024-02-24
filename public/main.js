@@ -295,15 +295,15 @@ function move_snake(direction) {
   app.stop();
 
   /**
-   * Speed in milliseconds at which the snake should move one tile.
+   * speed in milliseconds at which the snake should move one tile.
    */
   const SNAKE_SPEED = 100;
   
   /**
-   * Time elapsed since last updated.
+   * time elapsed since last updated.
    */
   let elapsed_time = 0;
-  // Tell our application's ticker to run a new callback every frame, passing
+  // tell our application's ticker to run a new callback every frame, passing
   // in the amount of time that has passed since the last tick
   app.ticker.add(() => {
 
@@ -318,10 +318,18 @@ function move_snake(direction) {
       elapsed_time = 0;
 
       /*
-       * move_snake either moves the snake both on-screen and in the state grid
+       * move_snake either moves the snake both on-screen and in the state grid and returns true,
        * or returns false without moving, indicating a collision.
        */
-      let collided = ! move_snake();
+      let collided = !move_snake();
+
+      /*
+       * if there's a collision, the game should end here
+       */
+      if (collided) {
+        cleanup();
+        app.stop();
+      }
     }
 
   });
