@@ -147,24 +147,52 @@ function move_grid_spite(sprite, direction) {
 
 
 /**
- * updates the state grid after moving the segment
- * part: segment sprite
- * location: coordinates on the state grid
+ * moves the segment, and then updates the state grid
+ * current: start coordinates on state grid
+ * future: final coordinates on state grid
  */
-function move_snake_segment(location, segment, direction) {
+function move_snake_segment(current, future, segment) {
 
 }
 
 /**
  * Checks whether the snake would eiher go out of bounds or crash into itself
- * direction: (x,y) array
+ * direction: [x,y] array
+ * 
+ * return: false = collision, true = evasion
  */
-function move_snake_head(sprite, direction) {
+function move_snake_head(direction) {
+  //the snakehead is the first element of the snake;
+  //retrieve the current location of the snake head
+  let current = snake[0][1];
 
+  //compute the snakehead's future location
+  //future: [x,y]
+  let future = [current[0] + direction[0],current[1] + direction[1]];
+
+
+  let x_bounds = (future[0] < 0 || future[0] >= GRID_COLUMNS);
+  let y_bounds = (future[1] < 0 || future[0] >= GRID_ROWS);
+  let out_of_bounds = (x_bounds || y_bounds);
+
+  if(out_of_bounds) return false;
+
+  let next_tile_state = state_grid[future[0]][future[1]];
+  if(next_tile_state == TILE_SNAKE) return false;
+
+
+  //! move the snake head
+  move_snake_segment(current, future, snake[0][0]);
+  
+  return true;
 }
 
-function move_snake() {
+function move_snake(direction) {
 
+  //if evaded, then the snake did not crash this turn
+  let evaded = move_snake_head(direction);
+
+  if (!evaded);
 }
 
 /////// initialization \\\\\\\
@@ -207,6 +235,8 @@ function move_snake() {
   
   snake_head.x = snake_start_x * UNIT_WIDTH + HALF_UNIT_WIDTH;
   snake_head.y = snake_start_y * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
+
+  console.log(snake);
 }
 
 
