@@ -79,7 +79,8 @@ const apple_texture = PIXI.Texture.from('apple.png');
  * which may but don't necessarily directly represent on-screen objects.
  */
 
-const app = new PIXI.Application({ background: BG_COLOR, width: PIXEL_WIDTH, height: PIXEL_HEIGHT });
+const app = new PIXI.Application({
+  background: BG_COLOR, width: PIXEL_WIDTH, height: PIXEL_HEIGHT});
 document.body.appendChild(app.view);
 
 const snake_head_sprite = PIXI.Sprite.from(snake_head_texture);
@@ -194,10 +195,14 @@ function move_snake_head(direction) {
  */
 function move_snake(direction) {
 
-  //if evaded, then the snake did not crash this turn
+  // if evaded, then the snake did not crash this turn
   let evaded = move_snake_head(direction);
 
   if (!evaded) return false;
+
+  //! move the rest of the segments
+
+  return true;
 }
 
 /////// initialization \\\\\\\
@@ -264,6 +269,7 @@ function move_snake(direction) {
  */
 {
   // arrange the tiles onto the screen
+  //? note, may want to refactor this later, because for loops are faster than forEach
   sprite_grid.forEach((row, y) => row.forEach( (tile, x) => {
 
     configure_sprite(tile);
@@ -312,16 +318,10 @@ function move_snake(direction) {
       elapsed_time = 0;
 
       /*
-       * Only have to check if the head is moving off screen.
-       * The rest of the game's logic should implicitely prevent the snake body
-       * from moving off screen.
-       * 
-       * Here it makes more sense to use the abstract state_grid to check, rather than
-       * the state_grid.
+       * move_snake either moves the snake both on-screen and in the state grid
+       * or returns false without moving, indicating a collision.
        */
-      if (true) {
-        move_grid_spite(snake_head, current_direction);
-      }
+      let collided = ! move_snake();
     }
 
   });
