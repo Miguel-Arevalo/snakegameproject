@@ -129,13 +129,13 @@ function configure_sprite(sprite) {
   sprite.width = UNIT_WIDTH;
 }
 
-// rotate snake head
-function rotate_head(direction) {
+// rotate snake segment
+function rotate_segment(sprite, direction) {
   // The Math.atan2() static method  returns the angle in the plane(in radians) between the positive x-axis
   // and the ray from (0, 0) to the point (x, y), for Math.atan2(y, x).
   let angle = Math.atan2(direction[1], direction[0]);
 
-  snake_head_sprite.rotation = -angle + Math.PI / 2;
+  sprite.rotation = -angle + Math.PI / 2;
   changed_direction = false;
 }
 
@@ -203,7 +203,7 @@ function move_snake(direction) {
   //! move the rest of the segments
 
   for(let segment of snake.slice(1)) {
-    
+
   }
 
   return true;
@@ -311,7 +311,7 @@ function move_snake(direction) {
   // in the amount of time that has passed since the last tick
   app.ticker.add(() => {
 
-    if(changed_direction) rotate_head(current_direction);
+    if(changed_direction) rotate_segment(snake_head_sprite, current_direction);
 
     //! add movement behaviour here
     console.log(app.ticker.deltaMS);
