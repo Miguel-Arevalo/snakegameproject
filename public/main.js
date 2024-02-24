@@ -54,11 +54,6 @@ let current_direction = [0,1];
  */
 let changed_direction = false;
 
-/**
- * Must be updated before gamestart.
- * [x,y] location in tile grid
- */
-let head_location = [-100,-100];
 
 /////// assets \\\\\\\
 
@@ -103,7 +98,16 @@ let state_grid = Array.from(Array(GRID_ROWS), () => new Array(GRID_COLUMNS));
  */
 let sprite_grid = Array.from(Array(GRID_ROWS), () => Array.from({length: GRID_COLUMNS}, () => PIXI.Sprite.from(bg_tile_texture)));
 
-
+/**
+ * list of snake segments
+ * each segment should take up a tile on the screen.
+ * each element of the list should be a tuple: (sprite container, coordinates)
+ * sprite container: PIXI.Container that has a snake segment sprite as its only child
+ * coordinates: (x,y)
+ * 
+ * the first element of the list should be the snakehead
+ */
+let snake = [];
 
 
 /////// game logic and graphics helper functions \\\\\\\
@@ -142,7 +146,12 @@ function move_grid_spite(sprite, direction) {
 }
 
 
-function move_snake_part(part, direction) {
+/**
+ * updates the state grid after moving the segment
+ * part: segment sprite
+ * location: coordinates on the state grid
+ */
+function move_snake_segment(location, segment, direction) {
 
 }
 
@@ -194,6 +203,7 @@ function move_snake() {
   } while(center_start);
   
   state_grid[snake_start_x][snake_start_y] = TILE_SNAKE;
+  snake.push([snake_head, [snake_start_x, snake_start_y]]);
   
   snake_head.x = snake_start_x * UNIT_WIDTH + HALF_UNIT_WIDTH;
   snake_head.y = snake_start_y * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
