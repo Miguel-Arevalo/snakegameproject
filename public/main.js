@@ -40,21 +40,6 @@ const GRID_CENTER = [Math.ceil(GRID_COLUMNS / 2) - 1, Math.ceil(GRID_ROWS / 2) -
 
 
 
-/////// global mutable variables \\\\\\\
-
-/**
- * should be updated to [x,y] when player hits direction key. 
- * 
- */
-let current_direction = [0,1];
-
-/**
- * momentarily set to true when direction key is pressed down.
- * after the change in direction is made, it's reset to false;
- */
-let changed_direction = false;
-
-
 /////// assets \\\\\\\
 
 /*
@@ -72,7 +57,24 @@ const bg_tile_texture = PIXI.Texture.from('generic tile.png');
 const apple_texture = PIXI.Texture.from('apple.png');
 
 
-/////// logical objects \\\\\\\
+
+/////// global mutable variables \\\\\\\
+
+/**
+ * should be updated to [x,y] when player hits direction key. 
+ * 
+ */
+let g_current_direction = [0,1];
+
+/**
+ * momentarily set to true when direction key is pressed down.
+ * after the change in direction is made, it's reset to false;
+ */
+let g_changed_direction = false;
+
+
+
+/////// global logical objects \\\\\\\
 
 /**
  * by logical objects, I mean data structures to be used by the snake game
@@ -92,25 +94,25 @@ const apple = new PIXI.Container();
 apple.addChild(apple_sprite);
 
 // stores state of each grid (empty, apple, snake, body)
-let state_grid = Array.from(Array(GRID_ROWS),
+let g_state_grid = Array.from(Array(GRID_ROWS),
   () => new Array(GRID_COLUMNS));
 
 /**
  * array of background sprites for each game tile
  */
-let sprite_grid = Array.from(Array(GRID_ROWS),
+let g_sprite_grid = Array.from(Array(GRID_ROWS),
   () => Array.from({length: GRID_COLUMNS}, () => PIXI.Sprite.from(bg_tile_texture)));
 
 /**
  * list of snake segments
  * each segment should take up a tile on the screen.
- * each element of the list should be a tuple: (sprite container, coordinates)
+ * each element of the list should be a tuple: [sprite container, coordinates]
  * sprite container: PIXI.Container that has a snake segment sprite as its only child
- * coordinates: (x,y)
+ * coordinates: [x,y]
  * 
  * the first element of the list should be the snakehead
  */
-let snake = [];
+let g_snake = [];
 
 
 /////// game logic and graphics helper functions \\\\\\\
@@ -136,11 +138,11 @@ function rotate_segment(sprite, direction) {
   let angle = Math.atan2(direction[1], direction[0]);
 
   sprite.rotation = -angle + Math.PI / 2;
-  changed_direction = false;
+  g_changed_direction = false;
 }
 
 // direction should be an (x,y) array
-function move_grid_spite(sprite, direction) {
+function move_grid_sprite(sprite, direction) {
   //x gets larger as it goes right, smaller as it goes left
   sprite.x = sprite.x + direction[0] * UNIT_WIDTH;
 
@@ -150,14 +152,14 @@ function move_grid_spite(sprite, direction) {
 
 
 /**
- * moves the segment, and then updates the state grid
+ * moves the segment from current to future, and then updates the state grid
  * current: start coordinates on state grid, [x,y]
  * future: final coordinates on state grid, [x,y]
  */
 function move_snake_segment(current, future, segment) {
-  state_grid[current[0]][current[1]] = TILE_EMPTY;
-  state_grid[future[0]][future[1]] = TILE_SNAKE;
-  move_grid_spite(segment, [future[0] - current[0],future[1] - current[1]]);
+  g_state_grid[current[0]][current[1]] = TILE_EMPTY;
+  g_state_grid[future[0]][future[1]] = TILE_SNAKE;
+  move_grid_sprite(segment, [future[0] - current[0],future[1] - current[1]]);
 }
 
 /**
@@ -169,7 +171,7 @@ function move_snake_segment(current, future, segment) {
 function move_snake_head(direction) {
   // the snakehead is the first element of the snake;
   // retrieve the current location of the snake head
-  let current = snake[0][1];
+  let current = g_snake[0][1];
 
   // compute the snakehead's future location
   // future: [x,y]
@@ -182,10 +184,10 @@ function move_snake_head(direction) {
 
   if(out_of_bounds) return false;
 
-  let next_tile_state = state_grid[future[0]][future[1]];
+  let next_tile_state = g_state_grid[future[0]][future[1]];
   if(next_tile_state == TILE_SNAKE) return false;
 
-  move_snake_segment(current, future, snake[0][0]);
+  move_snake_segment(current, future, g_snake[0][0]);
   
   return true;
 }
@@ -200,26 +202,35 @@ function move_snake(direction) {
 
   if (!evaded) return false;
 
-  //! move the rest of the segments
+  if(g_snake.length > 1) {
+    let previous_tile = g_snake[0][1];
+    for(let segment of g_snake.slice(1)) {
+      // coordinates of current segment
+      let current_tile = segment[1];
+      let sprite = segment[0];
 
-  for(let segment of snake.slice(1)) {
+      move_snake_segment(current_tile, previous_tile, sprite);
 
+      segment[1] = previous_tile;
+      previous_tile = current_tile;
+    }
   }
-
   return true;
 }
+
+
 
 /////// initialization \\\\\\\
 
 // create grid of empty tiles with apple in the middle, snake on a random tile
 {
-  state_grid.forEach((row) => row.fill(TILE_EMPTY));
+  g_state_grid.forEach((row) => row.fill(TILE_EMPTY));
 
   /*
    * GRID_CENTER[0]: x
    * GRID_CENTER[1]: y
    */
-  state_grid[GRID_CENTER[0]][GRID_CENTER[1]] = TILE_APPLE;
+  g_state_grid[GRID_CENTER[0]][GRID_CENTER[1]] = TILE_APPLE;
 
   // choose a random, non-center starting point for the snake head
  
@@ -244,8 +255,8 @@ function move_snake(direction) {
     center_start = (snake_start_x == GRID_CENTER[0] && snake_start_y == GRID_CENTER[1]);
   } while(center_start);
   
-  state_grid[snake_start_x][snake_start_y] = TILE_SNAKE;
-  snake.push([snake_head, [snake_start_x, snake_start_y]]);
+  g_state_grid[snake_start_x][snake_start_y] = TILE_SNAKE;
+  g_snake.push([snake_head, [snake_start_x, snake_start_y]]);
   
   snake_head.x = snake_start_x * UNIT_WIDTH + HALF_UNIT_WIDTH;
   snake_head.y = snake_start_y * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
@@ -274,7 +285,7 @@ function move_snake(direction) {
 {
   // arrange the tiles onto the screen
   //? note, may want to refactor this later, because for loops are faster than forEach
-  sprite_grid.forEach((row, y) => row.forEach( (tile, x) => {
+  g_sprite_grid.forEach((row, y) => row.forEach( (tile, x) => {
 
     configure_sprite(tile);
     tile.x = Math.floor(x * PIXEL_WIDTH / GRID_COLUMNS + HALF_UNIT_WIDTH);
@@ -311,7 +322,7 @@ function move_snake(direction) {
   // in the amount of time that has passed since the last tick
   app.ticker.add(() => {
 
-    if(changed_direction) rotate_segment(snake_head_sprite, current_direction);
+    if(g_changed_direction) rotate_segment(snake_head_sprite, g_current_direction);
 
     //! add movement behaviour here
     console.log(app.ticker.deltaMS);
@@ -349,22 +360,22 @@ function map_arrow_press(press) {
 
   switch (press.key) {
     case "ArrowDown":
-      current_direction = [0,-1]; //down
+      g_current_direction = [0,-1]; //down
       break;
     case "ArrowUp":
-      current_direction = [0,1];  //up
+      g_current_direction = [0,1];  //up
       break;
     case "ArrowLeft":
-      current_direction = [-1,0]; //left
+      g_current_direction = [-1,0]; //left
       break;
     case "ArrowRight":
-      current_direction = [1,0]; //right
+      g_current_direction = [1,0]; //right
       break;
     default:
       return;
   }
 
-  changed_direction = true;
+  g_changed_direction = true;
   press.preventDefault();
   app.start();
 }
