@@ -29,6 +29,8 @@ const PIXEL_HEIGHT = 400;
 const GRID_ROWS = 9; // y
 const GRID_COLUMNS = 9; // x
 
+console.log(`game grid no. columns: ${GRID_COLUMNS} no. rows: ${GRID_ROWS}`)
+
 const UNIT_HEIGHT = Math.floor(PIXEL_HEIGHT / GRID_ROWS);
 const UNIT_WIDTH = Math.floor(PIXEL_WIDTH / GRID_COLUMNS);
 
@@ -83,6 +85,7 @@ let g_changed_direction = false;
 
 const app = new PIXI.Application({
   background: BG_COLOR, width: PIXEL_WIDTH, height: PIXEL_HEIGHT});
+  
 document.body.appendChild(app.view);
 
 const snake_head_sprite = PIXI.Sprite.from(snake_head_texture);
@@ -106,7 +109,10 @@ let g_sprite_grid = Array.from(Array(GRID_ROWS),
 /**
  * list of snake segments
  * each segment should take up a tile on the screen.
+ * 
+ * 
  * each element of the list should be a tuple: [sprite container, coordinates]
+ * 
  * sprite container: PIXI.Container that has a snake segment sprite as its only child
  * coordinates: [x,y]
  * 
@@ -116,6 +122,7 @@ let g_snake = [];
 
 
 /////// game logic and graphics helper functions \\\\\\\
+
 
 /**
  * as of writing 2/11/2024 far all sprites use the same pivot point, width, and height
@@ -131,7 +138,7 @@ function configure_sprite(sprite) {
   sprite.width = UNIT_WIDTH;
 }
 
-// rotate snake segment
+
 function rotate_segment(sprite, direction) {
   // The Math.atan2() static method  returns the angle in the plane(in radians) between the positive x-axis
   // and the ray from (0, 0) to the point (x, y), for Math.atan2(y, x).
@@ -140,6 +147,7 @@ function rotate_segment(sprite, direction) {
   sprite.rotation = -angle + Math.PI / 2;
   g_changed_direction = false;
 }
+
 
 // direction should be an (x,y) array
 function move_grid_sprite(sprite, direction) {
@@ -155,45 +163,64 @@ function move_grid_sprite(sprite, direction) {
  * moves the segment from current to future, and then updates the state grid
  * current: start coordinates on state grid, [x,y]
  * future: final coordinates on state grid, [x,y]
+ * segment: sprite object
  */
 function move_snake_segment(current, future, segment) {
   g_state_grid[current[0]][current[1]] = TILE_EMPTY;
   g_state_grid[future[0]][future[1]] = TILE_SNAKE;
-  move_grid_sprite(segment, [future[0] - current[0],future[1] - current[1]]);
+  move_grid_sprite(segment, [future[0] - current[0],current[1] - future[1]]);
 }
+
 
 /**
  * Checks whether the snake would eiher go out of bounds or crash into itself
- * direction: [x,y] array
+ * direction: [x,y] vector
  * 
  * return: false = collision, true = evasion
  */
 function move_snake_head(direction) {
-  // the snakehead is the first element of the snake;
+  // the snakehead is the first element of the snake
   // retrieve the current location of the snake head
   let current = g_snake[0][1];
 
   // compute the snakehead's future location
   // future: [x,y]
-  let future = [current[0] + direction[0],current[1] + direction[1]];
+  let future = [current[0] + direction[0],current[1] - direction[1]]; 
+
+  console.log(`direction: ${direction}`);
+  console.log(`current snakehead coords: ${current}`); 
+  console.log(`future snakehead coords: ${future}`);
 
 
   let x_bounds = (future[0] < 0 || future[0] >= GRID_COLUMNS);
-  let y_bounds = (future[1] < 0 || future[0] >= GRID_ROWS);
+  let y_bounds = (future[1] < 0 || future[1] >= GRID_ROWS);
   let out_of_bounds = (x_bounds || y_bounds);
 
-  if(out_of_bounds) return false;
-
+  if(out_of_bounds) {
+    console.log("out of bounds"); 
+    return false;
+  }
   let next_tile_state = g_state_grid[future[0]][future[1]];
-  if(next_tile_state == TILE_SNAKE) return false;
 
+  if(next_tile_state == TILE_SNAKE) {
+    console.log("collided with snake");
+    console.log(g_state_grid);
+    return false;
+  }
+
+  // g_snake[0][0]: sprite container of snake head
   move_snake_segment(current, future, g_snake[0][0]);
+
+  // relocate head segment to future tile
+  g_snake[0][1] = future;
   
   return true;
 }
 
+
 /**
  * returns false if the snake collided; otherwise true
+ * direction: [x,y] vector 
  */
 function move_snake(direction) {
 
@@ -244,24 +271,25 @@ function move_snake(direction) {
    * formula makes sure that the snake head doesn't spawn on the edge of the grid.
    */
   let center_start;
-  console.log(`center x: ${GRID_CENTER[0]} and center y: ${GRID_CENTER[1]}`);
+  console.log(`center coordinates of state grid: center x: ${GRID_CENTER[0]} and center y: ${GRID_CENTER[1]}`);
   do {
 
     // remember that x is measured over columns, y over rows
     snake_start_x = Math.floor(Math.random() * (GRID_COLUMNS - 3)) + 1;
     snake_start_y = Math.floor(Math.random() * (GRID_ROWS - 3)) +  1;
-    console.log(`x: ${snake_start_x}, y: ${snake_start_y}`);
+    console.log(`snake start x: ${snake_start_x}, y: ${snake_start_y}`);
 
     center_start = (snake_start_x == GRID_CENTER[0] && snake_start_y == GRID_CENTER[1]);
   } while(center_start);
   
-  g_state_grid[snake_start_x][snake_start_y] = TILE_SNAKE;
-  g_snake.push([snake_head, [snake_start_x, snake_start_y]]);
-  
   snake_head.x = snake_start_x * UNIT_WIDTH + HALF_UNIT_WIDTH;
   snake_head.y = snake_start_y * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
 
-  console.log(snake);
+  g_state_grid[snake_start_x][snake_start_y] = TILE_SNAKE;
+  g_snake.push([snake_head, [snake_start_x, snake_start_y]]);
+
+  console.log("printing state grid");
+  console.log(g_state_grid);
 }
 
 
@@ -293,6 +321,8 @@ function move_snake(direction) {
     app.stage.addChild(tile);
   }));
 
+  console.log("printing sprite grid");
+  console.log(g_sprite_grid);
 
 
   //! add apple and snake here
@@ -325,7 +355,7 @@ function move_snake(direction) {
     if(g_changed_direction) rotate_segment(snake_head_sprite, g_current_direction);
 
     //! add movement behaviour here
-    console.log(app.ticker.deltaMS);
+    //console.log(app.ticker.deltaMS);
 
     elapsed_time += app.ticker.deltaMS;
 
@@ -336,7 +366,7 @@ function move_snake(direction) {
        * move_snake either moves the snake both on-screen and in the state grid and returns true,
        * or returns false without moving, indicating a collision.
        */
-      let collided = !move_snake();
+      let collided = !move_snake(g_current_direction);
 
       /*
        * if there's a collision, the game should end here
