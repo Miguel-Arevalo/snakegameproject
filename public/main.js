@@ -173,8 +173,12 @@ function move_grid_sprite(sprite, direction) {
     let x;
     let y;
     do {
+
+      //set the apple's position to a random tile
       x = Math.floor((Math.random()*(GRID_COLUMNS+1)));
       y = Math.floor((Math.random()*(GRID_ROWS+1)));
+
+      //check if the tile is occupied
 
     } while (overlap);
 }
@@ -199,7 +203,7 @@ function move_snake_segment(current, future, segment) {
  * Moves the head of the snake one tile forward.
  * 
  * Checks whether the snake would eiher go out of bounds or crash into itself.
- * Also checks whether it's hit an apple, and relocats it if it has.
+ * Also checks whether it's hit an apple, and relocates it if it has.
  * 
  * direction: [x,y] vector
  * 
@@ -251,8 +255,15 @@ function move_snake_head(direction) {
 
 
 /**
+ * This function checks if there's an obstacle in front of the snake. If there is, then the game ends;
+ * otherwise, the snake moves forward one tile.
+ * 
+ * Obstacles are the edge and the snake's own body. Empty tiles and tiles that hold the apple are not obstacles.
+ * 
+ * If the snake encounters an apple, then the apple moves and the player's score increases.
+ * 
+ * direction: [x,y] vector
  * returns false if the snake collided; otherwise true
- * direction: [x,y] vector 
  */
 function move_snake(direction) {
 
@@ -310,7 +321,7 @@ function move_snake(direction) {
     // This formula prevents the snake head from spawning on the outside edges of the grid
     snake_start_x = Math.floor(Math.random() * (GRID_COLUMNS - 3)) + 1;
     snake_start_y = Math.floor(Math.random() * (GRID_ROWS - 3)) +  1;
-    
+
     console.log(`snake start x: ${snake_start_x}, y: ${snake_start_y}`);
 
     center_start = (snake_start_x == GRID_CENTER[0] && snake_start_y == GRID_CENTER[1]);
