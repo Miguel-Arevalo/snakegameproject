@@ -188,8 +188,10 @@ function move_grid_sprite(sprite, direction) {
     do {
 
       // set the apple's position to a random tile
-      x = Math.floor((Math.random()*(GRID_COLUMNS+1)));
-      y = Math.floor((Math.random()*(GRID_ROWS+1)));
+      x = Math.floor((Math.random()*GRID_COLUMNS));
+      y = Math.floor((Math.random()*GRID_ROWS));
+
+      console.log(`testing new apple location: ${x}, ${y}`);
 
       // check if the tile is occupied; break loop if it's not
       future_tile = g_state_grid[x][y];
@@ -304,6 +306,7 @@ function move_snake(direction) {
       // capture the sprite of this segment
       let sprite = segment[0];
 
+      // update g_state_grid with snake movement here
       move_snake_segment(current_tile, previous_tile, sprite);
 
       segment[1] = previous_tile;
@@ -313,8 +316,7 @@ function move_snake(direction) {
 
   // lengthen the snake by adding a segment to the end of the snake after it moves
   if(next_tile == TILE_APPLE) {
-    //! create new snake part and add it here
-    let new_segment = PIXI.Sprite.from(bg_tile_texture);
+    let new_segment = PIXI.Sprite.from(snake_body_texture);
     
     configure_sprite(new_segment);
 
@@ -323,6 +325,8 @@ function move_snake(direction) {
 
     g_snake.push([new_segment, previous_tile]);
 
+    g_state_grid[previous_tile[0]][previous_tile[1]] = TILE_SNAKE;
+    
     app.stage.addChild(new_segment);
 
     relocate_apple();
