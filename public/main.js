@@ -185,7 +185,7 @@ function move_grid_sprite(sprite, direction) {
 
       // check if the tile is occupied; break loop if it's not
       future_tile = g_state_grid[x][y];
-      if (future_tile != TILE_APPLE && future_tile != TILE_SNAKE) overlap = false;
+      if (future_tile != TILE_SNAKE) overlap = false;
 
     } while (overlap);
 
@@ -252,11 +252,6 @@ function move_snake_head(direction) {
     return TILE_SNAKE;
   }
 
-  if(next_tile_state == TILE_APPLE) {
-    relocate_apple();
-    increase_score();
-  }
-
   // g_snake[0][0]: sprite container of snake head
   move_snake_segment(current, future, g_snake[0][0]);
 
@@ -274,7 +269,7 @@ function move_snake_head(direction) {
  * 
  * Obstacles are the edge and the snake's own body. Empty tiles and tiles that hold the apple are not obstacles.
  * 
- * If the snake encounters an apple, then the apple moves and the player's score increases.
+ * If the snake encounters an apple, then the snake lengthens, the apple moves, and the player's score increases.
  * 
  * direction: [x,y] vector
  * returns false if the snake collided; otherwise true
@@ -286,8 +281,9 @@ function move_snake(direction) {
 
   if (next_tile == TILE_SNAKE || next_tile == TILE_WALL) return false;
 
+  let previous_tile;
   if(g_snake.length > 1) {
-    let previous_tile = g_snake[0][1];
+    previous_tile = g_snake[0][1];
     for(let segment of g_snake.slice(1)) {
       // coordinates of current segment
       let current_tile = segment[1];
@@ -299,6 +295,14 @@ function move_snake(direction) {
       previous_tile = current_tile;
     }
   }
+
+  // lengthen the snake by adding a segment to the end of the snake after it moves
+  if(next_tile == TILE_APPLE) {
+    previous_tile
+    relocate_apple();
+    increase_score();
+  }
+  
   return true;
 }
 
