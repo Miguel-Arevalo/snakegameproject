@@ -276,17 +276,24 @@ function move_snake_head(direction) {
  */
 function move_snake(direction) {
 
-  // if evaded, then the snake did not crash this turn
+  // [x,y] previous location of the last tile to move
+  // Must capture the head's starting location here, because it will be updated in move_snake_head.
+  let previous_tile = g_snake[0][1];
+
+  // Returns the state of the tile the snake head wants to move into.
   let next_tile = move_snake_head(direction);
 
+  // if the snake head collided, abort the program.
   if (next_tile == TILE_SNAKE || next_tile == TILE_WALL) return false;
 
-  let previous_tile;
+  // after moving the head, move the rest of the body
   if(g_snake.length > 1) {
-    previous_tile = g_snake[0][1];
     for(let segment of g_snake.slice(1)) {
+
       // coordinates of current segment
       let current_tile = segment[1];
+
+      // capture the sprite of this segment
       let sprite = segment[0];
 
       move_snake_segment(current_tile, previous_tile, sprite);
@@ -298,7 +305,18 @@ function move_snake(direction) {
 
   // lengthen the snake by adding a segment to the end of the snake after it moves
   if(next_tile == TILE_APPLE) {
-    previous_tile
+    //! create new snake part and add it here
+    let new_segment = PIXI.Sprite.from(bg_tile_texture);
+    
+    configure_sprite(new_segment);
+
+    new_segment.x = previous_tile[0] * UNIT_WIDTH + HALF_UNIT_WIDTH;
+    new_segment.y = previous_tile[1] * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
+
+    g_snake.push([new_segment, previous_tile]);
+
+    app.stage.addChild(new_segment);
+
     relocate_apple();
     increase_score();
   }
