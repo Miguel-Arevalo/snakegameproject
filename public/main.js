@@ -306,9 +306,11 @@ function move_snake(direction) {
   console.log(`center coordinates of state grid: center x: ${GRID_CENTER[0]} and center y: ${GRID_CENTER[1]}`);
   do {
 
-    // remember that x is measured over columns, y over rows
+    // Remember that x is measured over columns, y over rows
+    // This formula prevents the snake head from spawning on the outside edges of the grid
     snake_start_x = Math.floor(Math.random() * (GRID_COLUMNS - 3)) + 1;
     snake_start_y = Math.floor(Math.random() * (GRID_ROWS - 3)) +  1;
+    
     console.log(`snake start x: ${snake_start_x}, y: ${snake_start_y}`);
 
     center_start = (snake_start_x == GRID_CENTER[0] && snake_start_y == GRID_CENTER[1]);
