@@ -13,12 +13,17 @@ const TILE_APPLE = Symbol.for("apple");
 const TILE_SNAKE = Symbol.for("snake");
 const TILE_BODY  = Symbol.for("body");
 
+/*
+ * Represents the edge of the game screen.
+ * Used to indicate that the snake has crashed into a wall.
+ */
+const TILE_WALL = Symbol.for("wall");
+
+/////// constants \\\\\\\
 
 // background color of game screen
 // should get obscured by tiles
 const BG_COLOR = '#1099bb';
-
-/////// constants \\\\\\\
 
 // width & height of game screen
 const PIXEL_WIDTH = 400;
@@ -38,6 +43,7 @@ const HALF_UNIT_WIDTH = UNIT_WIDTH / 2;
 const HALF_UNIT_HEIGHT = UNIT_HEIGHT / 2;
 
 // center of game grid; ceil used to yield integral value
+// [x,y] array
 const GRID_CENTER = [Math.ceil(GRID_COLUMNS / 2) - 1, Math.ceil(GRID_ROWS / 2) - 1]
 
 
@@ -173,10 +179,14 @@ function move_snake_segment(current, future, segment) {
 
 
 /**
- * Checks whether the snake would eiher go out of bounds or crash into itself
+ * Moves the head of the snake one tile forward.
+ * 
+ * Checks whether the snake would eiher go out of bounds or crash into itself.
+ * Also checks whether it's hit an apple, and relocats it if it has.
+ * 
  * direction: [x,y] vector
  * 
- * return: false = collision, true = evasion
+ * return: the state held by the next tile
  */
 function move_snake_head(direction) {
   // the snakehead is the first element of the snake
@@ -198,14 +208,14 @@ function move_snake_head(direction) {
 
   if(out_of_bounds) {
     console.log("out of bounds"); 
-    return false;
+    return TILE_WALL;
   }
   let next_tile_state = g_state_grid[future[0]][future[1]];
 
   if(next_tile_state == TILE_SNAKE) {
     console.log("collided with snake");
     console.log(g_state_grid);
-    return false;
+    return TILE_SNAKE;
   }
 
   // g_snake[0][0]: sprite container of snake head
@@ -214,7 +224,12 @@ function move_snake_head(direction) {
   // relocate head segment to future tile
   g_snake[0][1] = future;
   
-  return true;
+  if(next_tile_state == TILE_APPLE) {
+    relocate_apple();
+    increase_score();
+  }
+
+  return next_tile_state;
 }
 
 
@@ -285,6 +300,10 @@ function move_snake(direction) {
   snake_head.x = snake_start_x * UNIT_WIDTH + HALF_UNIT_WIDTH;
   snake_head.y = snake_start_y * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
 
+  //!set apple x,y
+  apple.x = GRID_CENTER[0] * UNIT_WIDTH + HALF_UNIT_WIDTH;
+  apple.y = GRID_CENTER[1] * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
+
   g_state_grid[snake_start_x][snake_start_y] = TILE_SNAKE;
   g_snake.push([snake_head, [snake_start_x, snake_start_y]]);
 
@@ -326,8 +345,8 @@ function move_snake(direction) {
 
 
   //! add apple and snake here
-  // app.stage.addChild(apple);
-  app.stage.addChild(snake_head); 
+  app.stage.addChild(apple);
+  app.stage.addChild(snake_head);
 
 }
 
