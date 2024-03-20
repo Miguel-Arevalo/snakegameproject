@@ -80,6 +80,7 @@ let g_current_direction = [0,1];
  */
 let g_changed_direction = false;
 
+let g_score = 0;
 
 
 /////// global logical objects \\\\\\\
@@ -129,6 +130,13 @@ let g_snake = [];
 
 /////// game logic and graphics helper functions \\\\\\\
 
+/**
+ * increases the score counter and displays the new core
+ */
+function increase_score() { 
+  g_score++;
+  //! display score here
+}
 
 /**
  * as of writing 2/11/2024 far all sprites use the same pivot point, width, and height
