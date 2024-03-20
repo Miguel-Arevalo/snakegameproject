@@ -165,27 +165,40 @@ function move_grid_sprite(sprite, direction) {
 }
 
 /**
- * Moves the apple sprite to a random tile that is *not* occupied by a snake, then updates the state grid.
+ * Moves the apple sprite to a *new* random tile that isn't occupied by a snake and updates the state grid
+ * with the new location.
+ * 
  */
   function relocate_apple() {
-    let overlap = true;
 
-    let x;
-    let y;
+    let overlap = true;
+    let x = 0;
+    let y = 0;
+    let future_tile;
+
+    // loop until apple lands on a tile not occupied by either a snake or the previous apple
     do {
 
-      //set the apple's position to a random tile
+      // set the apple's position to a random tile
       x = Math.floor((Math.random()*(GRID_COLUMNS+1)));
       y = Math.floor((Math.random()*(GRID_ROWS+1)));
 
-      //check if the tile is occupied
+      // check if the tile is occupied; break loop if it's not
+      future_tile = g_state_grid[x][y];
+      if (future_tile != TILE_APPLE && future_tile != TILE_SNAKE) overlap = false;
 
     } while (overlap);
+
+    g_state_grid[x][y] = TILE_APPLE;
+
+    apple.x = x * UNIT_WIDTH + HALF_UNIT_WIDTH;
+    apple.y = y * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
 }
 
 
 /**
- * moves the segment from current to future, and then updates the state grid
+ * Moves the segment from current to future, and then updates the state grid
+ * 
  * current: start coordinates on state grid, [x,y]
  * future: final coordinates on state grid, [x,y]
  * segment: sprite object
@@ -239,16 +252,17 @@ function move_snake_head(direction) {
     return TILE_SNAKE;
   }
 
+  if(next_tile_state == TILE_APPLE) {
+    relocate_apple();
+    increase_score();
+  }
+
   // g_snake[0][0]: sprite container of snake head
   move_snake_segment(current, future, g_snake[0][0]);
 
   // relocate head segment to future tile
   g_snake[0][1] = future;
   
-  if(next_tile_state == TILE_APPLE) {
-    relocate_apple();
-    increase_score();
-  }
 
   return next_tile_state;
 }
