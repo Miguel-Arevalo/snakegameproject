@@ -11,7 +11,6 @@
 const TILE_EMPTY = Symbol.for("empty");
 const TILE_APPLE = Symbol.for("apple");
 const TILE_SNAKE = Symbol.for("snake");
-const TILE_BODY  = Symbol.for("body");
 
 /*
  * Represents the edge of the game screen.
@@ -36,6 +35,7 @@ const GRID_COLUMNS = 9; // x
 
 console.log(`game grid no. columns: ${GRID_COLUMNS} no. rows: ${GRID_ROWS}`)
 
+//number of pixels in a single tile
 const UNIT_HEIGHT = Math.floor(PIXEL_HEIGHT / GRID_ROWS);
 const UNIT_WIDTH = Math.floor(PIXEL_WIDTH / GRID_COLUMNS);
 
@@ -164,6 +164,21 @@ function move_grid_sprite(sprite, direction) {
   sprite.y = sprite.y - direction[1] * UNIT_HEIGHT;
 }
 
+/**
+ * Moves the apple sprite to a random tile that is *not* occupied by a snake, then updates the state grid.
+ */
+  function relocate_apple() {
+    let overlap = true;
+
+    let x;
+    let y;
+    do {
+      x = Math.floor((Math.random()*(GRID_COLUMNS+1)));
+      y = Math.floor((Math.random()*(GRID_ROWS+1)));
+
+    } while (overlap);
+}
+
 
 /**
  * moves the segment from current to future, and then updates the state grid
@@ -176,6 +191,8 @@ function move_snake_segment(current, future, segment) {
   g_state_grid[future[0]][future[1]] = TILE_SNAKE;
   move_grid_sprite(segment, [future[0] - current[0],current[1] - future[1]]);
 }
+
+
 
 
 /**
@@ -240,9 +257,9 @@ function move_snake_head(direction) {
 function move_snake(direction) {
 
   // if evaded, then the snake did not crash this turn
-  let evaded = move_snake_head(direction);
+  let next_tile = move_snake_head(direction);
 
-  if (!evaded) return false;
+  if (next_tile == TILE_SNAKE || next_tile == TILE_WALL) return false;
 
   if(g_snake.length > 1) {
     let previous_tile = g_snake[0][1];
