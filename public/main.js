@@ -135,7 +135,9 @@ let g_snake = [];
  */
 function increase_score() { 
   g_score++;
+  console.log(g_score)
   //! display score here
+  document.getElementById("score").innerHTML = g_score;
 }
 
 /**
