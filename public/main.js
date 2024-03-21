@@ -507,15 +507,15 @@ function map_arrow_press(press) {
   }
 
   // make sure that new direction doesn't double back into snake body
-  let x = g_current_direction[0] + new_direction[0];
-  let y = g_current_direction[1] + new_direction[1];
-  if (x != 0 || y != 0) {
+  let x_sum = g_current_direction[0] + new_direction[0];
+  let y_sum = g_current_direction[1] + new_direction[1];
+  if (x_sum != 0 || y_sum != 0) {
 
     g_current_direction = new_direction;
     g_changed_direction = true;
     press.preventDefault();
+    app.start();
   }
-  app.start();
 }
 
 window.addEventListener("keydown", map_arrow_press);
