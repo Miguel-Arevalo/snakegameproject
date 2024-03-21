@@ -25,8 +25,8 @@ const TILE_WALL = Symbol.for("wall");
 const BG_COLOR = '#1099bb';
 
 // width & height of game screen
-const PIXEL_WIDTH = 400;
-const PIXEL_HEIGHT = 400;
+const PIXEL_WIDTH = 396;
+const PIXEL_HEIGHT = 396;
 
 
 // rows and columns of game grid
@@ -41,6 +41,8 @@ const UNIT_WIDTH = Math.floor(PIXEL_WIDTH / GRID_COLUMNS);
 
 const HALF_UNIT_WIDTH = UNIT_WIDTH / 2;
 const HALF_UNIT_HEIGHT = UNIT_HEIGHT / 2;
+
+console.log(`height pixels: ${UNIT_HEIGHT*GRID_ROWS}, width pixels: ${UNIT_WIDTH*GRID_COLUMNS}`);
 
 // center of game grid; ceil used to yield integral value
 // [x,y] array
@@ -204,7 +206,7 @@ function move_grid_sprite(sprite, direction) {
     g_state_grid[x][y] = TILE_APPLE;
 
     apple.x = x * UNIT_WIDTH + HALF_UNIT_WIDTH;
-    apple.y = y * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
+    apple.y = y * UNIT_HEIGHT + HALF_UNIT_HEIGHT; 
 }
 
 
@@ -486,26 +488,33 @@ function map_arrow_press(press) {
   if (press.defaultPrevented) {
     return;
   }
-
+  let new_direction = [0,0];
   switch (press.key) {
     case "ArrowDown":
-      g_current_direction = [0,-1]; //down
+      new_direction = [0,-1]; //down
       break;
     case "ArrowUp":
-      g_current_direction = [0,1];  //up
+      new_direction = [0,1];  //up
       break;
     case "ArrowLeft":
-      g_current_direction = [-1,0]; //left
+      new_direction = [-1,0]; //left
       break;
     case "ArrowRight":
-      g_current_direction = [1,0]; //right
+      new_direction = [1,0]; //right
       break;
     default:
       return;
   }
 
-  g_changed_direction = true;
-  press.preventDefault();
+  // make sure that new direction doesn't double back into snake body
+  let x = g_current_direction[0] + new_direction[0];
+  let y = g_current_direction[1] + new_direction[1];
+  if (x != 0 || y != 0) {
+
+    g_current_direction = new_direction;
+    g_changed_direction = true;
+    press.preventDefault();
+  }
   app.start();
 }
 
