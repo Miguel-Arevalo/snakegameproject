@@ -82,6 +82,8 @@ let g_current_direction = [0,1];
  */
 let g_changed_direction = false;
 
+
+
 let g_score = 0;
 
 
@@ -163,7 +165,6 @@ function rotate_segment(sprite, direction) {
   let angle = Math.atan2(direction[1], direction[0]);
 
   sprite.rotation = -angle + Math.PI / 2;
-  g_changed_direction = false;
 }
 
 
@@ -441,7 +442,8 @@ function move_snake(direction) {
   app.stop();
 
   /**
-   * speed in milliseconds at which the snake should move one tile.
+   * Snake moves every SNAKE_SPEED/1000 seconds,
+   * or every SNAKE_SPEED milliseconds.
    */
   const SNAKE_SPEED = 100;
   
@@ -461,7 +463,11 @@ function move_snake(direction) {
     elapsed_time += app.ticker.deltaMS;
 
     if(elapsed_time >= SNAKE_SPEED) {
+
       elapsed_time = 0;
+
+      // After snake moves a tile, it may change direction again.
+      g_changed_direction = false;
 
       /*
        * move_snake either moves the snake both on-screen and in the state grid and returns true,
@@ -488,6 +494,11 @@ function map_arrow_press(press) {
   if (press.defaultPrevented) {
     return;
   }
+
+  if (g_changed_direction == true) {
+    return;
+  }
+
   let new_direction = [0,0];
   switch (press.key) {
     case "ArrowDown":
