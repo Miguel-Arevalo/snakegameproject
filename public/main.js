@@ -77,13 +77,20 @@ const apple_texture = PIXI.Texture.from('apple.png');
 let g_current_direction = [0,1];
 
 /**
+ * Initializing to 0 allows the snake to start moving in any direction at game start
+ */
+let g_next_direction = [0,0];
+
+/**
  * momentarily set to true when direction key is pressed down.
  * after the change in direction is made, it's reset to false;
  */
 let g_changed_direction = false;
 
 
-
+/**
+ * Score increases each time an apple is eaten.
+ */
 let g_score = 0;
 
 
@@ -455,7 +462,7 @@ function move_snake(direction) {
   // in the amount of time that has passed since the last tick
   app.ticker.add(() => {
 
-    if(g_changed_direction) rotate_segment(snake_head_sprite, g_current_direction);
+    if(g_changed_direction) rotate_segment(snake_head_sprite, g_next_direction);
 
     //! add movement behaviour here
     //console.log(app.ticker.deltaMS);
@@ -468,6 +475,8 @@ function move_snake(direction) {
 
       // After snake moves a tile, it may change direction again.
       g_changed_direction = false;
+
+      g_current_direction = g_next_direction;
 
       /*
        * move_snake either moves the snake both on-screen and in the state grid and returns true,
@@ -495,10 +504,6 @@ function map_arrow_press(press) {
     return;
   }
 
-  if (g_changed_direction == true) {
-    return;
-  }
-
   let new_direction = [0,0];
   switch (press.key) {
     case "ArrowDown":
@@ -517,12 +522,12 @@ function map_arrow_press(press) {
       return;
   }
 
-  // make sure that new direction doesn't double back into snake body
+  // make sure that new direction doesn't let snake head double back into its body
   let x_sum = g_current_direction[0] + new_direction[0];
   let y_sum = g_current_direction[1] + new_direction[1];
   if (x_sum != 0 || y_sum != 0) {
 
-    g_current_direction = new_direction;
+    g_next_direction = new_direction;
     g_changed_direction = true;
     press.preventDefault();
     app.start();
