@@ -452,7 +452,7 @@ function move_snake(direction) {
    * Snake moves every SNAKE_SPEED/1000 seconds,
    * or every SNAKE_SPEED milliseconds.
    */
-  const SNAKE_SPEED = 100;
+  const SNAKE_SPEED = 110;
   
   /**
    * time elapsed since last updated.
