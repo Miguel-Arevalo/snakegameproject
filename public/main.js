@@ -74,7 +74,7 @@ const apple_texture = PIXI.Texture.from('apple.png');
  * should be updated to [x,y] when player hits direction key. 
  * 
  */
-let g_current_direction = [0,1];
+let g_current_direction = [0,0];
 
 /**
  * Initializing to 0 allows the snake to start moving in any direction at game start
@@ -300,7 +300,7 @@ function move_snake(direction) {
 
   // [x,y] previous location of the last tile to move
   // Must capture the head's starting location here, because it will be updated in move_snake_head.
-  let previous_tile = g_snake[0][1];
+  let previous_head = g_snake[0][1];
 
   // Returns the state of the tile the snake head wants to move into.
   let next_tile = move_snake_head(direction);
@@ -310,21 +310,27 @@ function move_snake(direction) {
 
   // after moving the head, move the rest of the body
   if(g_snake.length > 1) {
-    for(let segment of g_snake.slice(1)) {
-
-      // coordinates of current segment
-      let current_tile = segment[1];
-
-      // capture the sprite of this segment
-      let sprite = segment[0];
+      
+      let tail = g_snake.slice(-1)[0];
+      
+      // unpack tail values
+      let sprite = tail[0]; let previous_tile = tail[1];
+      console.log(tail);
 
       // update g_state_grid with snake movement here
-      move_snake_segment(current_tile, previous_tile, sprite);
+      // this should move the snake from previous_tile to previous_head
+      move_snake_segment(previous_tile, previous_head, sprite);
 
-      segment[1] = previous_tile;
-      previous_tile = current_tile;
+      //set new tail location
+      tail[1] = previous_head;
+
+      // move the end of the tail to the 2nd position
+      if(g_snake.length > 2) {
+        g_snake.pop();
+        g_snake = [g_snake[0]].concat([tail].concat(g_snake.slice(1))); 
+      }
+
     }
-  }
 
   // lengthen the snake by adding a segment to the end of the snake after it moves
   if(next_tile == TILE_APPLE) {
@@ -332,12 +338,12 @@ function move_snake(direction) {
     
     configure_sprite(new_segment);
 
-    new_segment.x = previous_tile[0] * UNIT_WIDTH + HALF_UNIT_WIDTH;
-    new_segment.y = previous_tile[1] * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
+    new_segment.x = previous_head[0] * UNIT_WIDTH + HALF_UNIT_WIDTH;
+    new_segment.y = previous_head[1] * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
 
-    g_snake.push([new_segment, previous_tile]);
+    g_snake.push([new_segment, previous_head]);
 
-    g_state_grid[previous_tile[0]][previous_tile[1]] = TILE_SNAKE;
+    g_state_grid[previous_head[0]][previous_head[1]] = TILE_SNAKE;
     
     app.stage.addChild(new_segment);
 
