@@ -61,8 +61,9 @@ const GRID_CENTER = [Math.ceil(GRID_COLUMNS / 2) - 1, Math.ceil(GRID_ROWS / 2) -
 
 
 // Magically load PNGs asynchronously
-const snake_head_texture = PIXI.Texture.from('snake head.png');
-const snake_body_texture = PIXI.Texture.from('snake body.png');
+const snake_head_texture = PIXI.Texture.from('yellow snake head.png');
+const snake_body_texture_straight = PIXI.Texture.from('yellow snake body straight.png');
+const snake_body_texture_turning = PIXI.Texture.from('yellow snake body turning.png');
 const bg_tile_texture = PIXI.Texture.from('generic tile.png');
 const apple_texture = PIXI.Texture.from('apple.png');
 
@@ -296,14 +297,14 @@ function move_snake_head(direction) {
  * direction: [x,y] vector
  * returns false if the snake collided; otherwise true
  */
-function move_snake(direction) {
+function move_snake(current_direction, next_direction) {
 
   // [x,y] previous location of the last tile to move
   // Must capture the head's starting location here, because it will be updated in move_snake_head.
   let previous_head = g_snake[0][1];
 
   // Returns the state of the tile the snake head wants to move into.
-  let next_tile = move_snake_head(direction);
+  let next_tile = move_snake_head(current_direction);
 
   // if the snake head collided, abort the program.
   if (next_tile == TILE_SNAKE || next_tile == TILE_WALL) return false;
@@ -315,7 +316,7 @@ function move_snake(direction) {
       
       // unpack tail values
       let sprite = tail[0]; let previous_tile = tail[1];
-      console.log(tail);
+      // console.log(tail);
 
       // update g_state_grid with snake movement here
       // this should move the snake from previous_tile to previous_head
@@ -326,6 +327,9 @@ function move_snake(direction) {
 
       // move the end of the tail to the 2nd position
       if(g_snake.length > 2) {
+
+        console.log(current_direction);
+        console.log(next_direction);
 
         g_snake.pop(); // remove tail
 
@@ -342,7 +346,7 @@ function move_snake(direction) {
 
   // lengthen the snake by adding a segment to the end of the snake after it moves
   if(next_tile == TILE_APPLE) {
-    let new_segment = PIXI.Sprite.from(snake_body_texture);
+    let new_segment = PIXI.Sprite.from(snake_body_texture_straight);
     
     configure_sprite(new_segment);
 
@@ -490,13 +494,15 @@ function move_snake(direction) {
       // After snake moves a tile, it may change direction again.
       g_changed_direction = false;
 
-      g_current_direction = g_next_direction;
 
       /*
        * move_snake either moves the snake both on-screen and in the state grid and returns true,
        * or returns false without moving, indicating a collision.
        */
-      let collided = !move_snake(g_current_direction);
+      let collided = !move_snake(g_current_direction, g_next_direction);
+      
+      g_current_direction = g_next_direction;
+
 
       /*
        * if there's a collision, the game should end here
