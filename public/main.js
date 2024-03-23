@@ -326,10 +326,18 @@ function move_snake(direction) {
 
       // move the end of the tail to the 2nd position
       if(g_snake.length > 2) {
-        g_snake.pop();
-        g_snake = [g_snake[0]].concat([tail].concat(g_snake.slice(1))); 
-      }
 
+        g_snake.pop(); // remove tail
+
+        let body = [tail]; // boxed tail
+        let snake = [g_snake[0]]; // boxed head
+
+        body.push.apply(body,g_snake.slice(1)); // body <- tail + rest of snake
+
+        snake.push.apply(snake,body); // snake <- head + body
+
+        g_snake = snake; // g_snake <- snake
+      }
     }
 
   // lengthen the snake by adding a segment to the end of the snake after it moves
