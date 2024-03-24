@@ -143,6 +143,20 @@ let g_snake = [];
 /////// game logic and graphics helper functions \\\\\\\
 
 /**
+ * Determine which of the clockwise or counterclockwise angles from vector A
+ * to vector B is larger. Returns 0 if the clockwise angle is smaller, and 1
+ * if the counterclockwise angle is.
+ * 
+ * Essentially, determnite whether B is to the right of A or not.
+ */
+function B_right_A(A, B) {
+  let dot = A[0]*B[0] + A[1]*B[1];
+  let det = A[0]*B[1] - B[0]*A[1];
+  console.log(`angle  ${Math.atan2(det, dot) <= Math.PI}`);
+  return Math.atan2(det, dot) <= 0 / 2 ? 0 : 1;
+}
+
+/**
  * increases the score counter and displays the new core
  */
 function increase_score() { 
@@ -304,7 +318,7 @@ function move_snake(current_direction, next_direction) {
   let previous_head = g_snake[0][1];
 
   // Returns the state of the tile the snake head wants to move into.
-  let next_tile = move_snake_head(current_direction);
+  let next_tile = move_snake_head(next_direction);
 
   // if the snake head collided, abort the program.
   if (next_tile == TILE_SNAKE || next_tile == TILE_WALL) return false;
@@ -316,14 +330,40 @@ function move_snake(current_direction, next_direction) {
       
       // unpack tail values
       let sprite = tail[0]; let previous_tile = tail[1];
-      // console.log(tail);
 
       // update g_state_grid with snake movement here
       // this should move the snake from previous_tile to previous_head
       move_snake_segment(previous_tile, previous_head, sprite);
 
-      //set new tail location
+      // set new tail location
       tail[1] = previous_head;
+
+
+      // if the snake is turning, rotate the sprite 90 degrees
+      let direction_diff = (next_direction[0] - current_direction[0]) || (next_direction[1] - current_direction[1]);
+      console.log(`direction diff ${direction_diff}`);
+      if(direction_diff) {
+        sprite.texture = snake_body_texture_turning;
+
+        /*
+        * 1) Determine if the snake is changing direction (already done).
+
+        * 2) Take the angle between the x axis and the old direction, +180 degress ("-x axis").
+        * 
+        * 3) Then determine if the new direction is left or right, relative to the old direction.
+        * If it's left, then add PI/2 to the angle
+        * 
+        * 4) Set the rotation of the sprite to this angle.
+        */
+
+        let rot = Math.atan2(-current_direction[0], -current_direction[1]);
+
+        sprite.rotation = rot + B_right_A(current_direction, next_direction) * Math.PI / 2;
+
+      } else {
+        sprite.texture = snake_body_texture_straight;
+        rotate_segment(sprite, next_direction);
+      }
 
       // move the end of the tail to the 2nd position
       if(g_snake.length > 2) {
@@ -494,7 +534,7 @@ function move_snake(current_direction, next_direction) {
       // After snake moves a tile, it may change direction again.
       g_changed_direction = false;
 
-
+      console.log(g_next_direction);
       /*
        * move_snake either moves the snake both on-screen and in the state grid and returns true,
        * or returns false without moving, indicating a collision.
@@ -545,6 +585,7 @@ function map_arrow_press(press) {
   // make sure that new direction doesn't let snake head double back into its body
   let x_sum = g_current_direction[0] + new_direction[0];
   let y_sum = g_current_direction[1] + new_direction[1];
+ 
   if (x_sum != 0 || y_sum != 0) {
 
     g_next_direction = new_direction;
