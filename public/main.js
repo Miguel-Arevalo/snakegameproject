@@ -96,6 +96,12 @@ let g_changed_direction = false;
  */
 let g_score = 0;
 
+/**
+ * Snake moves every SNAKE_SPEED/1000 seconds,
+ * or every SNAKE_SPEED milliseconds.
+ */
+let g_snake_speed = 180;
+
 
 /////// global logical objects \\\\\\\
 
@@ -413,6 +419,11 @@ function move_snake(current_direction, next_direction) {
     app.stage.addChild(new_segment);
 
     relocate_apple();
+
+    if (g_snake_speed > 70) {
+      g_snake_speed -= 7;
+    }
+
     increase_score();
   }
   
@@ -519,12 +530,6 @@ function move_snake(current_direction, next_direction) {
 {
   await new Promise(a => setTimeout(a, 200));
   app.stop();
-
-  /**
-   * Snake moves every SNAKE_SPEED/1000 seconds,
-   * or every SNAKE_SPEED milliseconds.
-   */
-  const SNAKE_SPEED = 110;
   
   /**
    * time elapsed since last updated.
@@ -534,16 +539,16 @@ function move_snake(current_direction, next_direction) {
   // in the amount of time that has passed since the last tick
   app.ticker.add(() => {
 
-    if(g_changed_direction) rotate_segment(snake_head_sprite, g_next_direction);
-
     //! add movement behaviour here
     //console.log(app.ticker.deltaMS);
 
     elapsed_time += app.ticker.deltaMS;
 
-    if(elapsed_time >= SNAKE_SPEED) {
+    if(elapsed_time >= g_snake_speed) {
 
       elapsed_time = 0;
+
+      if(g_changed_direction) rotate_segment(snake_head_sprite, g_next_direction);
 
       // After snake moves a tile, it may change direction again.
       g_changed_direction = false;
