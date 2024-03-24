@@ -65,6 +65,8 @@ const snake_head_texture = PIXI.Texture.from('yellow snake head.png');
 const snake_body_texture_straight = PIXI.Texture.from('yellow snake body straight.png');
 const snake_body_texture_turning = PIXI.Texture.from('yellow snake body turning.png');
 const bg_tile_texture = PIXI.Texture.from('generic tile.png');
+const bg_tile_texture_medium_green = PIXI.Texture.from('medium_green.png');
+const bg_tile_texture_dark_green = PIXI.Texture.from('dark_green.png');
 const apple_texture = PIXI.Texture.from('apple.png');
 
 
@@ -126,9 +128,14 @@ let g_state_grid = Array.from(Array(GRID_ROWS),
 
 /**
  * array of background sprites for each game tile
+ * checkered light and dark green tiles
  */
 let g_sprite_grid = Array.from(Array(GRID_ROWS),
-  () => Array.from({length: GRID_COLUMNS}, () => PIXI.Sprite.from(bg_tile_texture)));
+  (_, i) => Array.from({length: GRID_COLUMNS},
+    (_, j) => {
+      let bg_texture = (i+j) % 2 == 0 ? bg_tile_texture_medium_green : bg_tile_texture_dark_green;
+      return PIXI.Sprite.from(bg_texture);
+}));
 
 /**
  * list of snake segments
@@ -489,6 +496,7 @@ function move_snake(current_direction, next_direction) {
   g_sprite_grid.forEach((row, y) => row.forEach( (tile, x) => {
 
     configure_sprite(tile);
+    
     tile.x = Math.floor(x * PIXEL_WIDTH / GRID_COLUMNS + HALF_UNIT_WIDTH);
     tile.y = Math.floor(y * PIXEL_HEIGHT / GRID_ROWS + HALF_UNIT_HEIGHT);
     app.stage.addChild(tile);
