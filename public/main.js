@@ -357,20 +357,20 @@ function move_snake(current_direction, next_direction) {
       tail[1] = previous_head;
 
 
-      //check if the snake is rotating
+      // check if the snake is rotating and use curved snake tile instead
       let direction_diff = (next_direction[0] - current_direction[0]) || (next_direction[1] - current_direction[1]);
       if(direction_diff) {
         sprite.texture = snake_body_texture_turning;
 
         /*
-        * 1) Determine if the snake is changing direction (already done).
-
-        * 2) Take the angle between the x axis and the old direction, +180 degress ("-x axis").
-        * 
-        * 3) Then determine if the new direction is left or right, relative to the old direction.
-        * If it's left, then add PI/2 to the angle
-        * 
-        * 4) Set the rotation of the sprite to this angle.
+         * 1) Determine if the snake is changing direction (already done).
+         *
+         * 2) Take the angle between the x axis and the old direction, +180 degress ("-x axis").
+         * 
+         * 3) Then determine if the new direction is left or right, relative to the old direction.
+         * If it's left, then add PI/2 to the angle.
+         * 
+         * 4) Set the rotation of the sprite to this angle.
         */
 
         let rot = Math.atan2(-current_direction[0], -current_direction[1]);
@@ -528,7 +528,7 @@ function move_snake(current_direction, next_direction) {
 
 
 {
-  await new Promise(a => setTimeout(a, 200));
+  await new Promise(a => setTimeout(a, 250));
   app.stop();
   
   /**
