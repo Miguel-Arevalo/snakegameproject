@@ -107,13 +107,18 @@ const app = new PIXI.Application({
   
 document.body.appendChild(app.view);
 
+
 const snake_head_sprite = PIXI.Sprite.from(snake_head_texture);
 const snake_head = new PIXI.Container();
+// tbh idk why I boxed this, other than because some guide did it,
+// but it's annoying and I should undo this later
 snake_head.addChild(snake_head_sprite);
+
 
 const apple_sprite = PIXI.Sprite.from(apple_texture);
 const apple = new PIXI.Container();
 apple.addChild(apple_sprite);
+
 
 // stores state of each grid (empty, apple, snake, body)
 let g_state_grid = Array.from(Array(GRID_ROWS),
@@ -339,9 +344,8 @@ function move_snake(current_direction, next_direction) {
       tail[1] = previous_head;
 
 
-      // if the snake is turning, rotate the sprite 90 degrees
+      //check if the snake is rotating
       let direction_diff = (next_direction[0] - current_direction[0]) || (next_direction[1] - current_direction[1]);
-      console.log(`direction diff ${direction_diff}`);
       if(direction_diff) {
         sprite.texture = snake_body_texture_turning;
 
@@ -389,6 +393,8 @@ function move_snake(current_direction, next_direction) {
     let new_segment = PIXI.Sprite.from(snake_body_texture_straight);
     
     configure_sprite(new_segment);
+
+    new_segment.rotation = snake_head_sprite.rotation;
 
     new_segment.x = previous_head[0] * UNIT_WIDTH + HALF_UNIT_WIDTH;
     new_segment.y = previous_head[1] * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
