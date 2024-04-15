@@ -61,13 +61,12 @@ const GRID_CENTER = [Math.ceil(GRID_COLUMNS / 2) - 1, Math.ceil(GRID_ROWS / 2) -
 
 
 // Magically load PNGs asynchronously
-const snake_head_texture = PIXI.Texture.from('yellow snake head.png');
-const snake_body_texture_straight = PIXI.Texture.from('yellow snake body straight.png');
-const snake_body_texture_turning = PIXI.Texture.from('yellow snake body turning.png');
-const bg_tile_texture = PIXI.Texture.from('generic tile.png');
-const bg_tile_texture_medium_green = PIXI.Texture.from('medium_green.png');
-const bg_tile_texture_dark_green = PIXI.Texture.from('dark_green.png');
-const apple_texture = PIXI.Texture.from('apple.png');
+const snake_head_texture = PIXI.Texture.from('sprites/yellow snake head.png');
+const snake_body_texture_straight = PIXI.Texture.from('sprites/yellow snake body straight.png');
+const snake_body_texture_turning = PIXI.Texture.from('sprites/yellow snake body turning.png');
+const bg_tile_texture_medium_green = PIXI.Texture.from('sprites/medium_green.png');
+const bg_tile_texture_dark_green = PIXI.Texture.from('sprites/dark_green.png');
+const apple_texture = PIXI.Texture.from('sprites/apple.png');
 
 
 
