@@ -1,0 +1,6 @@
+[Unit]
+Description=run webserver
+[Service]
+ExecStart=/var/www/snakegameproject/private/scripts/runserver.sh
+[Install]
+WantedBy=multi-user.target
