@@ -1,15 +1,23 @@
 #[macro_use] extern crate rocket;
 
 use std::env;
+use std::fs::File;
+use std::io::Read;
+
+const webroot: &str = "../../public";
 
 #[get("/")]
-fn index() -> &'static str {
+fn index() -> String {
 
-    if let Ok(curr_dir) = env::current_dir() {
-        println!("current directory: {:?}", curr_dir);
+    if let Ok(mut f) = File::open(format!("{}/{}", webroot, "index.html")) {
+        let mut index_contents = String::new();
+
+        f.read_to_string(&mut index_contents);
+
+        return index_contents;
     }
 
-    return "hello world!";
+    return "hello world!".to_string();
 }
 
 #[get("/world")]
