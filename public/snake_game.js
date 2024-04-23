@@ -68,7 +68,8 @@ export async function run_game() {
     const bg_tile_texture_dark_green = PIXI.Texture.from('sprites/dark_green.png');
     const apple_texture = PIXI.Texture.from('sprites/apple.png');
 
-
+    let all_sprites = [snake_head_texture, snake_body_texture_straight, snake_body_texture_turning,
+        bg_tile_texture_medium_green, bg_tile_texture_dark_green, apple_texture];
 
     /////// global mutable variables \\\\\\\
 
@@ -127,6 +128,7 @@ export async function run_game() {
     apple.addChild(apple_sprite);
 
 
+
     // stores state of each grid (empty, apple, snake, body)
     let g_state_grid = Array.from(Array(GRID_ROWS),
     () => new Array(GRID_COLUMNS));
@@ -181,6 +183,11 @@ export async function run_game() {
     console.log(g_score)
     //! display score here
     document.getElementById("score").innerHTML = g_score;
+    }
+
+    function reset_score() {
+        g_score = 0;
+        document.getElementById("score").innerHTML = g_score;
     }
 
     /**
@@ -262,8 +269,6 @@ export async function run_game() {
     g_state_grid[future[0]][future[1]] = TILE_SNAKE;
     move_grid_sprite(segment, [future[0] - current[0],current[1] - future[1]]);
     }
-
-
 
 
     /**
@@ -429,6 +434,25 @@ export async function run_game() {
     return true;
     }
 
+    
+    function cleanup() {
+        removeEventListener("keydown", map_arrow_press);
+        app.stop();
+
+        // Working ChatGPT code !!!
+
+        const destroyOptions = {
+            children: true, // optional, if set to true, it will also destroy all the children of the stage
+            texture: true, // optional, if set to true, it will also destroy all the textures
+            baseTexture: true, // optional, if set to true, it will also destroy all the base textures
+        };
+        
+        // Destroy the PixiJS Application instance
+        app.destroy(destroyOptions);
+
+        reset_score();
+    }
+
 
 
     /////// initialization \\\\\\\
@@ -568,7 +592,6 @@ export async function run_game() {
         */
         if (collided) {
         cleanup();
-        app.stop();
         }
     }
 
