@@ -449,13 +449,15 @@ export async function run_game() {
         
         // Destroy the PixiJS Application instance
         app.destroy(destroyOptions);
-
-        reset_score();
     }
 
 
 
     /////// initialization \\\\\\\
+
+    // reset score from previous game, if any
+
+    reset_score();
 
     // create grid of empty tiles with apple in the middle, snake on a random tile
     {
