@@ -448,6 +448,9 @@ export async function run_game() {
         
         // Destroy the PixiJS Application instance
         app.destroy(destroyOptions);
+
+        const game_over = new CustomEvent("game_over", {detail: g_score});
+        document.dispatchEvent(game_over);
     }
 
 
@@ -555,59 +558,6 @@ export async function run_game() {
 
     }
 
-    /////// main loop \\\\\\\
-
-
-
-    {
-    //await new Promise(a => setTimeout(a, 250));
-
-    /**
-     * time elapsed since last updated.
-     */
-    let elapsed_time = 0;
-    // tell our application's ticker to run a new callback every frame, passing
-    // in the amount of time that has passed since the last tick
-    app.ticker.add(() => {
-
-    //! add movement behaviour here
-    //console.log(app.ticker.deltaMS);
-
-    if(g_changed_direction) rotate_segment(snake_head_sprite, g_next_direction);
-
-    elapsed_time += app.ticker.deltaMS;
-
-    if (g_next_direction[0] == 0 && g_next_direction[1] == 0) return;
-
-    if(elapsed_time >= g_snake_speed) {
-
-        elapsed_time = 0;
-
-
-        // After snake moves a tile, it may change direction again.
-        g_changed_direction = false;
-
-        console.log(g_next_direction);
-        /*
-        * move_snake either moves the snake both on-screen and in the state grid and returns true,
-        * or returns false without moving, indicating a collision.
-        */
-        let collided = !move_snake(g_current_direction, g_next_direction);
-        
-        g_current_direction = g_next_direction;
-
-
-        /*
-        * if there's a collision, the game should end here
-        */
-        if (collided) {
-            cleanup();
-        }
-    }
-
-    });
-    }
-
     /////// user input listeners ///////
 
     // map directional arrow keys to direction
@@ -648,5 +598,60 @@ export async function run_game() {
     }
 
     window.addEventListener("keydown", map_arrow_press);
+
+
+
+    /////// main loop \\\\\\\
+
+
+
+    {
+        //await new Promise(a => setTimeout(a, 250));
+    
+        /**
+         * time elapsed since last updated.
+         */
+        let elapsed_time = 0;
+        // tell our application's ticker to run a new callback every frame, passing
+        // in the amount of time that has passed since the last tick
+        app.ticker.add(() => {
+    
+        //! add movement behaviour here
+        //console.log(app.ticker.deltaMS);
+    
+        if(g_changed_direction) rotate_segment(snake_head_sprite, g_next_direction);
+    
+        elapsed_time += app.ticker.deltaMS;
+    
+        if (g_next_direction[0] == 0 && g_next_direction[1] == 0) return;
+    
+        if(elapsed_time >= g_snake_speed) {
+    
+            elapsed_time = 0;
+    
+    
+            // After snake moves a tile, it may change direction again.
+            g_changed_direction = false;
+    
+            console.log(g_next_direction);
+            /*
+            * move_snake either moves the snake both on-screen and in the state grid and returns true,
+            * or returns false without moving, indicating a collision.
+            */
+            let collided = !move_snake(g_current_direction, g_next_direction);
+            
+            g_current_direction = g_next_direction;
+    
+    
+            /*
+            * if there's a collision, the game should end here
+            */
+            if (collided) {
+                cleanup();
+            }
+        }
+    
+        });
+    }
 
 }
