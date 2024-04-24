@@ -2,9 +2,16 @@
 
 use rocket::fs::{FileServer, relative};
 use rocket::response::status;
+use rocket::serde::{Deserialize, json::Json};
 
-#[post("/")]
-fn score() -> status::Accepted<()> {
+#[derive(Deserialize)]
+struct Game {
+    score: u8
+}
+
+#[post("/", format = "application/json", data="<game>")]
+fn score(game: Json<Game>) -> status::Accepted<()> {
+    println!("score: {}", game.score);
     status::Accepted(())
 }
 
