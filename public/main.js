@@ -1,10 +1,12 @@
 
 import {run_game} from "./snake_game.js";
 
-  function asdf() {
+  function game_wrapper() {
 
     function game_over(e) {
         console.log(`final score: ${e.detail}`);
+
+        
     }
 
     document.addEventListener("game_over", game_over);
@@ -12,4 +14,4 @@ import {run_game} from "./snake_game.js";
 
 }
 
-document.getElementById("start button").addEventListener("click", asdf);
+document.getElementById("start button").addEventListener("click", game_wrapper);
