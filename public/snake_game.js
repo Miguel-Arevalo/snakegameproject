@@ -430,7 +430,7 @@ export async function run_game() {
         increase_score();
     }
 
-    return true;
+        return true;
     }
 
     
@@ -460,63 +460,63 @@ export async function run_game() {
 
     // create grid of empty tiles with apple in the middle, snake on a random tile
     {
-    g_state_grid.forEach((row) => row.fill(TILE_EMPTY));
+        g_state_grid.forEach((row) => row.fill(TILE_EMPTY));
 
-    /*
-    * GRID_CENTER[0]: x
-    * GRID_CENTER[1]: y
-    */
-    g_state_grid[GRID_CENTER[0]][GRID_CENTER[1]] = TILE_APPLE;
+        /*
+        * GRID_CENTER[0]: x
+        * GRID_CENTER[1]: y
+        */
+        g_state_grid[GRID_CENTER[0]][GRID_CENTER[1]] = TILE_APPLE;
 
-    // choose a random, non-center starting point for the snake head
+        // choose a random, non-center starting point for the snake head
 
-    // note, may wanna modify later to add a new state for the head of the snake!
-    let snake_start_x = 1;
-    let snake_start_y = 1;
+        // note, may wanna modify later to add a new state for the head of the snake!
+        let snake_start_x = 1;
+        let snake_start_y = 1;
 
-    /*
-    * On average, loops about 1/(GRID_COLUMNS*GRID_ROWS) times.
-    * so this will only loop if the snake head happens to land on the apple.
-    * formula makes sure that the snake head doesn't spawn on the edge of the grid.
-    */
-    let center_start;
-    console.log(`center coordinates of state grid: center x: ${GRID_CENTER[0]} and center y: ${GRID_CENTER[1]}`);
-    do {
+        /*
+        * On average, loops about 1/(GRID_COLUMNS*GRID_ROWS) times.
+        * so this will only loop if the snake head happens to land on the apple.
+        * formula makes sure that the snake head doesn't spawn on the edge of the grid.
+        */
+        let center_start;
+        console.log(`center coordinates of state grid: center x: ${GRID_CENTER[0]} and center y: ${GRID_CENTER[1]}`);
+        do {
 
-    // Remember that x is measured over columns, y over rows
-    // This formula prevents the snake head from spawning on the outside edges of the grid
-    snake_start_x = Math.floor(Math.random() * (GRID_COLUMNS - 3)) + 1;
-    snake_start_y = Math.floor(Math.random() * (GRID_ROWS - 3)) +  1;
+        // Remember that x is measured over columns, y over rows
+        // This formula prevents the snake head from spawning on the outside edges of the grid
+        snake_start_x = Math.floor(Math.random() * (GRID_COLUMNS - 3)) + 1;
+        snake_start_y = Math.floor(Math.random() * (GRID_ROWS - 3)) +  1;
 
-    console.log(`snake start x: ${snake_start_x}, y: ${snake_start_y}`);
+        console.log(`snake start x: ${snake_start_x}, y: ${snake_start_y}`);
 
-    center_start = (snake_start_x == GRID_CENTER[0] && snake_start_y == GRID_CENTER[1]);
-    } while(center_start);
+        center_start = (snake_start_x == GRID_CENTER[0] && snake_start_y == GRID_CENTER[1]);
+        } while(center_start);
 
-    snake_head.x = snake_start_x * UNIT_WIDTH + HALF_UNIT_WIDTH;
-    snake_head.y = snake_start_y * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
+        snake_head.x = snake_start_x * UNIT_WIDTH + HALF_UNIT_WIDTH;
+        snake_head.y = snake_start_y * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
 
-    //!set apple x,y
-    apple.x = GRID_CENTER[0] * UNIT_WIDTH + HALF_UNIT_WIDTH;
-    apple.y = GRID_CENTER[1] * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
+        //!set apple x,y
+        apple.x = GRID_CENTER[0] * UNIT_WIDTH + HALF_UNIT_WIDTH;
+        apple.y = GRID_CENTER[1] * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
 
-    g_state_grid[snake_start_x][snake_start_y] = TILE_SNAKE;
-    g_snake.push([snake_head, [snake_start_x, snake_start_y]]);
+        g_state_grid[snake_start_x][snake_start_y] = TILE_SNAKE;
+        g_snake.push([snake_head, [snake_start_x, snake_start_y]]);
 
-    console.log("printing state grid");
-    console.log(g_state_grid);
+        console.log("printing state grid");
+        console.log(g_state_grid);
     }
 
 
 
     // configure evergreen sprites
     {
-    //these sprites get moved around, but are reused continuously
-    let sprites = [snake_head_sprite, apple_sprite];
+        //these sprites get moved around, but are reused continuously
+        let sprites = [snake_head_sprite, apple_sprite];
 
-    for(let sprite of sprites) {
-    configure_sprite(sprite);
-    }
+        for(let sprite of sprites) {
+        configure_sprite(sprite);
+        }
     }
 
 
@@ -526,32 +526,32 @@ export async function run_game() {
     *
     */
     {
-    // arrange the tiles onto the screen
-    //? note, may want to refactor this later, because for loops are faster than forEach
-    let promises = g_sprite_grid.map((row, y) => {
-    
-    
-        let promises = row.map((tile,x) => new Promise(() => {
-            configure_sprite(tile);
-
-            tile.x = Math.floor(x * PIXEL_WIDTH / GRID_COLUMNS + HALF_UNIT_WIDTH);
-            tile.y = Math.floor(y * PIXEL_HEIGHT / GRID_ROWS + HALF_UNIT_HEIGHT);
+        // arrange the tiles onto the screen
+        //? note, may want to refactor this later, because for loops are faster than forEach
+        let promises = g_sprite_grid.map((row, y) => {
         
-            app.stage.addChild(tile);
-        }));
+        
+            let promises = row.map((tile,x) => new Promise(() => {
+                configure_sprite(tile);
+
+                tile.x = Math.floor(x * PIXEL_WIDTH / GRID_COLUMNS + HALF_UNIT_WIDTH);
+                tile.y = Math.floor(y * PIXEL_HEIGHT / GRID_ROWS + HALF_UNIT_HEIGHT);
+            
+                app.stage.addChild(tile);
+            }));
+
+            Promise.allSettled(promises);
+        });
 
         Promise.allSettled(promises);
-    });
 
-    Promise.allSettled(promises);
-
-    console.log("printing sprite grid");
-    console.log(g_sprite_grid);
+        console.log("printing sprite grid");
+        console.log(g_sprite_grid);
 
 
-    //! add apple and snake here
-    await app.stage.addChild(apple);
-    await app.stage.addChild(snake_head);
+        //! add apple and snake here
+        await app.stage.addChild(apple);
+        await app.stage.addChild(snake_head);
 
     }
 
@@ -601,7 +601,7 @@ export async function run_game() {
         * if there's a collision, the game should end here
         */
         if (collided) {
-        cleanup();
+            cleanup();
         }
     }
 
@@ -640,10 +640,10 @@ export async function run_game() {
 
     if (x_sum != 0 || y_sum != 0) {
 
-    g_next_direction = new_direction;
-    g_changed_direction = true;
-    press.preventDefault();
-    app.start();
+        g_next_direction = new_direction;
+        g_changed_direction = true;
+        press.preventDefault();
+        app.start();
     }
     }
 
