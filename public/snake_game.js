@@ -529,22 +529,30 @@ export async function run_game() {
     {
     // arrange the tiles onto the screen
     //? note, may want to refactor this later, because for loops are faster than forEach
-    g_sprite_grid.forEach((row, y) => row.forEach( (tile, x) => {
+    let promises = g_sprite_grid.map((row, y) => {
+    
+    
+        let promises = row.map((tile,x) => new Promise(() => {
+            configure_sprite(tile);
 
-    configure_sprite(tile);
+            tile.x = Math.floor(x * PIXEL_WIDTH / GRID_COLUMNS + HALF_UNIT_WIDTH);
+            tile.y = Math.floor(y * PIXEL_HEIGHT / GRID_ROWS + HALF_UNIT_HEIGHT);
+        
+            app.stage.addChild(tile);
+        }));
 
-    tile.x = Math.floor(x * PIXEL_WIDTH / GRID_COLUMNS + HALF_UNIT_WIDTH);
-    tile.y = Math.floor(y * PIXEL_HEIGHT / GRID_ROWS + HALF_UNIT_HEIGHT);
-    app.stage.addChild(tile);
-    }));
+        Promise.allSettled(promises);
+    });
+
+    Promise.allSettled(promises);
 
     console.log("printing sprite grid");
     console.log(g_sprite_grid);
 
 
     //! add apple and snake here
-    app.stage.addChild(apple);
-    app.stage.addChild(snake_head);
+    await app.stage.addChild(apple);
+    await app.stage.addChild(snake_head);
 
     }
 
@@ -553,8 +561,7 @@ export async function run_game() {
 
 
     {
-    await new Promise(a => setTimeout(a, 250));
-    app.stop();
+    //await new Promise(a => setTimeout(a, 250));
 
     /**
      * time elapsed since last updated.
@@ -570,6 +577,8 @@ export async function run_game() {
     if(g_changed_direction) rotate_segment(snake_head_sprite, g_next_direction);
 
     elapsed_time += app.ticker.deltaMS;
+
+    if (g_next_direction[0] == 0 && g_next_direction[1] == 0) return;
 
     if(elapsed_time >= g_snake_speed) {
 
