@@ -169,10 +169,10 @@ export async function run_game() {
      * Essentially, determnite whether B is to the right of A or not.
      */
     function B_right_A(A, B) {
-    let dot = A[0]*B[0] + A[1]*B[1];
-    let det = A[0]*B[1] - B[0]*A[1];
-    console.log(`angle  ${Math.atan2(det, dot) <= Math.PI}`);
-    return Math.atan2(det, dot) <= 0 / 2 ? 0 : 1;
+        let dot = A[0]*B[0] + A[1]*B[1];
+        let det = A[0]*B[1] - B[0]*A[1];
+        console.log(`angle  ${Math.atan2(det, dot) <= Math.PI}`);
+        return Math.atan2(det, dot) <= 0 / 2 ? 0 : 1;
     }
 
     /**
@@ -196,21 +196,21 @@ export async function run_game() {
      */
     function configure_sprite(sprite) {
 
-    // set rotation pivots to center of sprite
-    sprite.anchor.set(0.5);
+        // set rotation pivots to center of sprite
+        sprite.anchor.set(0.5);
 
-    // scale sprites to one unit of the game grid
-    sprite.height = UNIT_HEIGHT;
-    sprite.width = UNIT_WIDTH;
+        // scale sprites to one unit of the game grid
+        sprite.height = UNIT_HEIGHT;
+        sprite.width = UNIT_WIDTH;
     }
 
 
     function rotate_segment(sprite, direction) {
-    // The Math.atan2() static method  returns the angle in the plane(in radians) between the positive x-axis
-    // and the ray from (0, 0) to the point (x, y), for Math.atan2(y, x).
-    let angle = Math.atan2(direction[1], direction[0]);
+        // The Math.atan2() static method  returns the angle in the plane(in radians) between the positive x-axis
+        // and the ray from (0, 0) to the point (x, y), for Math.atan2(y, x).
+        let angle = Math.atan2(direction[1], direction[0]);
 
-    sprite.rotation = -angle + Math.PI / 2;
+        sprite.rotation = -angle + Math.PI / 2;
     }
 
 
@@ -230,30 +230,30 @@ export async function run_game() {
      */
     function relocate_apple() {
 
-    let overlap = true;
-    let x = 0;
-    let y = 0;
-    let future_tile;
+        let overlap = true;
+        let x = 0;
+        let y = 0;
+        let future_tile;
 
-    // loop until apple lands on a tile not occupied by either a snake or the previous apple
-    do {
+        // loop until apple lands on a tile not occupied by either a snake or the previous apple
+        do {
 
-        // set the apple's position to a random tile
-        x = Math.floor((Math.random()*GRID_COLUMNS));
-        y = Math.floor((Math.random()*GRID_ROWS));
+            // set the apple's position to a random tile
+            x = Math.floor((Math.random()*GRID_COLUMNS));
+            y = Math.floor((Math.random()*GRID_ROWS));
 
-        console.log(`testing new apple location: ${x}, ${y}`);
+            console.log(`testing new apple location: ${x}, ${y}`);
 
-        // check if the tile is occupied; break loop if it's not
-        future_tile = g_state_grid[x][y];
-        if (future_tile != TILE_SNAKE) overlap = false;
+            // check if the tile is occupied; break loop if it's not
+            future_tile = g_state_grid[x][y];
+            if (future_tile != TILE_SNAKE) overlap = false;
 
-    } while (overlap);
+        } while (overlap);
 
-    g_state_grid[x][y] = TILE_APPLE;
+            g_state_grid[x][y] = TILE_APPLE;
 
-    apple.x = x * UNIT_WIDTH + HALF_UNIT_WIDTH;
-    apple.y = y * UNIT_HEIGHT + HALF_UNIT_HEIGHT; 
+            apple.x = x * UNIT_WIDTH + HALF_UNIT_WIDTH;
+            apple.y = y * UNIT_HEIGHT + HALF_UNIT_HEIGHT; 
     }
 
 
@@ -265,9 +265,9 @@ export async function run_game() {
      * segment: sprite object
      */
     function move_snake_segment(current, future, segment) {
-    g_state_grid[current[0]][current[1]] = TILE_EMPTY;
-    g_state_grid[future[0]][future[1]] = TILE_SNAKE;
-    move_grid_sprite(segment, [future[0] - current[0],current[1] - future[1]]);
+        g_state_grid[current[0]][current[1]] = TILE_EMPTY;
+        g_state_grid[future[0]][future[1]] = TILE_SNAKE;
+        move_grid_sprite(segment, [future[0] - current[0],current[1] - future[1]]);
     }
 
 
@@ -282,44 +282,44 @@ export async function run_game() {
      * return: the state held by the next tile
      */
     function move_snake_head(direction) {
-    // the snakehead is the first element of the snake
-    // retrieve the current location of the snake head
-    let current = g_snake[0][1];
+        // the snakehead is the first element of the snake
+        // retrieve the current location of the snake head
+        let current = g_snake[0][1];
 
-    // compute the snakehead's future location
-    // future: [x,y]
-    let future = [current[0] + direction[0],current[1] - direction[1]]; 
+        // compute the snakehead's future location
+        // future: [x,y]
+        let future = [current[0] + direction[0],current[1] - direction[1]]; 
 
-    console.log(`direction: ${direction}`);
-    console.log(`current snakehead coords: ${current}`); 
-    console.log(`future snakehead coords: ${future}`);
-
-
-    let x_bounds = (future[0] < 0 || future[0] >= GRID_COLUMNS);
-    let y_bounds = (future[1] < 0 || future[1] >= GRID_ROWS);
-    let out_of_bounds = (x_bounds || y_bounds);
-
-    if(out_of_bounds) {
-    console.log("out of bounds"); 
-    return TILE_WALL;
-    }
-    let next_tile_state = g_state_grid[future[0]][future[1]];
-
-    if(next_tile_state == TILE_SNAKE) {
-    console.log("collided with snake");
-    console.log(g_state_grid);
-    return TILE_SNAKE;
-    }
-
-    // g_snake[0][0]: sprite container of snake head
-    move_snake_segment(current, future, g_snake[0][0]);
-
-    // relocate head segment to future tile
-    g_snake[0][1] = future;
+        console.log(`direction: ${direction}`);
+        console.log(`current snakehead coords: ${current}`); 
+        console.log(`future snakehead coords: ${future}`);
 
 
-    return next_tile_state;
-    }
+        let x_bounds = (future[0] < 0 || future[0] >= GRID_COLUMNS);
+        let y_bounds = (future[1] < 0 || future[1] >= GRID_ROWS);
+        let out_of_bounds = (x_bounds || y_bounds);
+
+        if(out_of_bounds) {
+            console.log("out of bounds");
+        return TILE_WALL;
+        }
+        let next_tile_state = g_state_grid[future[0]][future[1]];
+
+        if(next_tile_state == TILE_SNAKE) {
+            console.log("collided with snake");
+            console.log(g_state_grid);
+        return TILE_SNAKE;
+        }
+
+        // g_snake[0][0]: sprite container of snake head
+        move_snake_segment(current, future, g_snake[0][0]);
+
+        // relocate head segment to future tile
+        g_snake[0][1] = future;
+
+
+        return next_tile_state;
+     }
 
 
     /**
@@ -364,71 +364,70 @@ export async function run_game() {
         // check if the snake is rotating and use curved snake tile instead
         let direction_diff = (next_direction[0] - current_direction[0]) || (next_direction[1] - current_direction[1]);
         if(direction_diff) {
-        sprite.texture = snake_body_texture_turning;
+            sprite.texture = snake_body_texture_turning;
 
-        /*
-            * 1) Determine if the snake is changing direction (already done).
-            *
-            * 2) Take the angle between the x axis and the old direction, +180 degress ("-x axis").
-            * 
-            * 3) Then determine if the new direction is left or right, relative to the old direction.
-            * If it's left, then add PI/2 to the angle.
-            * 
-            * 4) Set the rotation of the sprite to this angle.
-        */
+            /*
+                * 1) Determine if the snake is changing direction (already done).
+                *
+                * 2) Take the angle between the x axis and the old direction, +180 degress ("-x axis").
+                * 
+                * 3) Then determine if the new direction is left or right, relative to the old direction.
+                * If it's left, then add PI/2 to the angle.
+                * 
+                * 4) Set the rotation of the sprite to this angle.
+            */
 
-        let rot = Math.atan2(-current_direction[0], -current_direction[1]);
+            let rot = Math.atan2(-current_direction[0], -current_direction[1]);
 
-        sprite.rotation = rot + B_right_A(current_direction, next_direction) * Math.PI / 2;
+            sprite.rotation = rot + B_right_A(current_direction, next_direction) * Math.PI / 2;
 
         } else {
-        sprite.texture = snake_body_texture_straight;
-        rotate_segment(sprite, next_direction);
+            sprite.texture = snake_body_texture_straight;
+            rotate_segment(sprite, next_direction);
         }
 
         // move the end of the tail to the 2nd position
         if(g_snake.length > 2) {
 
-        console.log(current_direction);
-        console.log(next_direction);
+            console.log(current_direction);
+            console.log(next_direction);
 
-        g_snake.pop(); // remove tail
+            g_snake.pop(); // remove tail
 
-        let body = [tail]; // boxed tail
-        let snake = [g_snake[0]]; // boxed head
+            let body = [tail]; // boxed tail
+            let snake = [g_snake[0]]; // boxed head
 
-        body.push.apply(body,g_snake.slice(1)); // body <- tail + rest of snake
+            body.push.apply(body,g_snake.slice(1)); // body <- tail + rest of snake
 
-        snake.push.apply(snake,body); // snake <- head + body
+            snake.push.apply(snake,body); // snake <- head + body
 
-        g_snake = snake; // g_snake <- snake
+            g_snake = snake; // g_snake <- snake
         }
     }
 
     // lengthen the snake by adding a segment to the end of the snake after it moves
     if(next_tile == TILE_APPLE) {
-    let new_segment = PIXI.Sprite.from(snake_body_texture_straight);
+        let new_segment = PIXI.Sprite.from(snake_body_texture_straight);
 
-    configure_sprite(new_segment);
+        configure_sprite(new_segment);
 
-    new_segment.rotation = snake_head_sprite.rotation;
+        new_segment.rotation = snake_head_sprite.rotation;
 
-    new_segment.x = previous_head[0] * UNIT_WIDTH + HALF_UNIT_WIDTH;
-    new_segment.y = previous_head[1] * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
+        new_segment.x = previous_head[0] * UNIT_WIDTH + HALF_UNIT_WIDTH;
+        new_segment.y = previous_head[1] * UNIT_HEIGHT + HALF_UNIT_HEIGHT;
 
-    g_snake.push([new_segment, previous_head]);
+        g_snake.push([new_segment, previous_head]);
 
-    g_state_grid[previous_head[0]][previous_head[1]] = TILE_SNAKE;
+        g_state_grid[previous_head[0]][previous_head[1]] = TILE_SNAKE;
 
-    app.stage.addChild(new_segment);
+        app.stage.addChild(new_segment);
 
-    relocate_apple();
+        relocate_apple();
 
     if (g_snake_speed > 100) {
-        g_snake_speed -= 5;
+            g_snake_speed -= 5;
     }
-
-    increase_score();
+        increase_score();
     }
 
     return true;
