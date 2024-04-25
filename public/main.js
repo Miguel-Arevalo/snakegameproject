@@ -9,9 +9,6 @@ function game_wrapper() {
 
 }
 
-function login_wrapper(e) {
-    comm.login(e);
-}
 document.getElementById("start button").addEventListener("click", game_wrapper);
 
 console.log(document.forms["login form"]);
