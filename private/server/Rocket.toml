@@ -1,0 +1,6 @@
+[dependencies.rocket_db_pools]
+version = "0.1.0"
+feature = ["diesel_mysql"]
+
+[default.databases.gemu]
+url = "mysql://rocket_backend@localhost/gemu"
